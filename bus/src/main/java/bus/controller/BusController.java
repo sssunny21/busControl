@@ -1,6 +1,11 @@
 package bus.controller;
 
+import java.io.BufferedOutputStream;
+import java.nio.file.Files;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -52,6 +57,7 @@ public class BusController {
 			model.addAttribute("id",id);
 		}
 		model.addAttribute("busList", busList);
+		model.addAttribute("state", state);
 		return "bus/busList";
 	}
 	
@@ -64,13 +70,14 @@ public class BusController {
 			model.addAttribute("id",id);
 		}
 		model.addAttribute("busList", busList);
+		model.addAttribute("bus_num", bus_num);
 		return "bus/busList";
 	}
 	
 	@RequestMapping(value="/bus/busList.gnt", method=RequestMethod.POST, params="cmd=excel")
-	public String busList4(Bus bus, Model model) throws Exception {
+	public String busList4(Bus bus, Model model, HttpServletRequest request,HttpServletResponse response) throws Exception {
 		List<Bus> busList = busMapper.selectBusList();
-        BusListToExcelFile.busListToFile("busList.xlsx", busList);
+        BusListToExcelFile.busListToFile("busList.xlsx", busList, request, response);
         model.addAttribute("busList", busList);
 		return "bus/busList";
 	}
@@ -122,6 +129,9 @@ public class BusController {
 		String message = busService.validateBeforeUpdate(bus);
 		if (message == null){
 			busMapper.updateBus(bus);
+	    	if(!bus.getState().equals("운행")){
+	    		allocateMapper.cancelByBus(bus.getBusid());
+	    	}
 			redirectAttributes.addFlashAttribute("errorMsg", "저장했습니다.");
 			return "redirect:/bus/busList.gnt";
 		}else{
@@ -132,11 +142,9 @@ public class BusController {
 	
 	@RequestMapping("/bus/busDelete.gnt")
     public String delete(Model model, @RequestParam("busid") int busid,RedirectAttributes redirectAttributes) throws Exception {
-        if(!allocateMapper.selectByBusid(busid).isEmpty()){
-        	redirectAttributes.addFlashAttribute("errorMsg", "삭제가 불가능합니다.");
-        }else{
-        	 busMapper.deleteBus(busid);
-        }
+		busMapper.deleteBus(busid);
+		allocateMapper.deleteByBus(busid);
+		redirectAttributes.addFlashAttribute("errorMsg", "삭제가 완료되었습니다.");
         return "redirect:/bus/busList.gnt";
     }
 	
@@ -158,24 +166,24 @@ public class BusController {
 		if(selection.equals("allo_date")) {
 			allocateList = allocateMapper.selectAllo_date(search);
 		}else if(selection.equals("name")){
-			allocateList = allocateMapper.selectName_Bus_num(search,"");
+			allocateList = allocateMapper.searchName(search);
 		}else{
-			allocateList = allocateMapper.selectName_Bus_num("",search);
+			allocateList = allocateMapper.searchBus_num(search);
 		}
 		if(UserService.getCurrentUser()!=null){
 			User u = (User)UserService.getCurrentUser();
 			String id = userService.printAuth(u);
 			model.addAttribute("id",id);
 		}
-	
+		model.addAttribute("selection", selection);
 		model.addAttribute("allocateList", allocateList);
         return "bus/allocateList";
     }
 	
 	@RequestMapping(value="/bus/allocateList.gnt", method=RequestMethod.POST, params="cmd=excel")
-    public String allocateList2(Allocate allocate, Model model) throws Exception {
+    public String allocateList2(Allocate allocate, Model model, HttpServletRequest request,HttpServletResponse response) throws Exception {
 		List<Allocate> allocateList = allocateMapper.selectFinishAllocate();
-		AllocateListToExcelFile.allocateListToFile("allocateList.xlsx", allocateList);
+		AllocateListToExcelFile.allocateListToFile("allocateList.xlsx", allocateList, request, response);
 		model.addAttribute("allocateList", allocateList);
         return "bus/allocateList";
     }

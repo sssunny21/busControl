@@ -8,6 +8,8 @@ public class Driver {
 	String birth;
 	String join_date;
 	String state;
+	boolean cancel_check;
+	String allo_date;
 	
 	public int getDriverid() {
 		return driverid;
@@ -50,5 +52,17 @@ public class Driver {
 	}
 	public void setState(String state) {
 		this.state = state;
+	}
+	public boolean isCancel_check() {
+		return cancel_check;
+	}
+	public void setCancel_check(boolean cancel_check) {
+		this.cancel_check = cancel_check;
+	}
+	public String getAllo_date() {
+		return allo_date;
+	}
+	public void setAllo_date(String allo_date) {
+		this.allo_date = allo_date;
 	}
 }

@@ -1,7 +1,11 @@
 package bus.service;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -13,7 +17,23 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import bus.dto.Allocate;
 
 public class AllocateListToExcelFile {
-	public static void allocateListToFile(String fileName, List<Allocate> allocateList) throws Exception{
+	public static void allocateListToFile(String sfileName, List<Allocate> allocateList,  HttpServletRequest request, HttpServletResponse response) throws Exception{
+		sfileName = new String ( sfileName.getBytes("KSC5601"), "8859_1");
+
+		response.reset();//한글 깨짐 방지
+
+		String strClient = request.getHeader("User-Agent");
+
+		String fileName = sfileName;
+
+		if (strClient.indexOf("MSIE 5.5") > -1) {
+			response.setHeader("Content-Disposition", "filename=" + fileName + ";");
+		} else {
+			response.setContentType("application/vnd.ms-excel");
+			response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ";");
+		}
+
+		OutputStream fileOut = null;
 		Workbook workbook = null;
 
 		if(fileName.endsWith("xlsx")){
@@ -39,7 +59,9 @@ public class AllocateListToExcelFile {
 		Cell cell3 = row.createCell(3);
 		cell3.setCellValue("배차 일자");
 		Cell cell4 = row.createCell(4);
-		cell4.setCellValue("운행 여부");
+		cell4.setCellValue("배차 여부");
+		Cell cell5 = row.createCell(5);
+		cell5.setCellValue("취소 사유");
 
 		do{
 			Allocate allocate = iterator.next();
@@ -54,18 +76,20 @@ public class AllocateListToExcelFile {
 			cell3 = row.createCell(3);
 			cell3.setCellValue(allocate.getAllo_date());
 			cell4 = row.createCell(4);
-			if(allocate.isOperate_check() == true){
-				cell4.setCellValue("시작");
+			if(allocate.isCancel_check() == true){
+				cell4.setCellValue("취소");
 			}else{
-				cell4.setCellValue("대기");
+				cell4.setCellValue("완료");
 			}
+			cell5 = row.createCell(5);
+			cell5.setCellValue(allocate.getCancel_reason());
 			
 
 		}while(iterator.hasNext());    
 
-		FileOutputStream fos = new FileOutputStream(fileName);
-		workbook.write(fos);
-		fos.close();
+		fileOut = response.getOutputStream();
+		workbook.write(fileOut);
+		fileOut.close();
 
 	}
 }

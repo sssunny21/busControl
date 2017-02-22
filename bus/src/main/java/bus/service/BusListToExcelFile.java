@@ -1,8 +1,11 @@
 package bus.service;
 
-import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -14,7 +17,23 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import bus.dto.Bus;
 
 public class BusListToExcelFile {
-	public static void busListToFile(String fileName, List<Bus> busList) throws Exception{
+	public static void busListToFile(String sfileName, List<Bus> busList,HttpServletRequest request, HttpServletResponse response) throws Exception{
+		sfileName = new String ( sfileName.getBytes("KSC5601"), "8859_1");
+
+		response.reset();//한글 깨짐 방지
+
+		String strClient = request.getHeader("User-Agent");
+
+		String fileName = sfileName;
+
+		if (strClient.indexOf("MSIE 5.5") > -1) {
+			response.setHeader("Content-Disposition", "filename=" + fileName + ";");
+		} else {
+			response.setContentType("application/vnd.ms-excel");
+			response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ";");
+		}
+
+		OutputStream fileOut = null;
 		Workbook workbook = null;
 
 		if(fileName.endsWith("xlsx")){
@@ -39,9 +58,6 @@ public class BusListToExcelFile {
 		cell2.setCellValue("도입년도");
 		Cell cell3 = row.createCell(3);
 		cell3.setCellValue("상태");
-		Cell cell4 = row.createCell(4);
-		cell4.setCellValue("배정날짜");
-
 		do{
 			Bus bus = iterator.next();
 			row = sheet.createRow(rowIndex++);
@@ -54,14 +70,11 @@ public class BusListToExcelFile {
 			cell2.setCellValue(bus.getIntro_year());
 			cell3 = row.createCell(3);
 			cell3.setCellValue(bus.getState());
-			cell4 = row.createCell(4);
-			cell4.setCellValue(bus.getAllo_date());
-
 		}while(iterator.hasNext());    
-
-		FileOutputStream fos = new FileOutputStream(fileName);
-		workbook.write(fos);
-		fos.close();
+		
+		fileOut = response.getOutputStream();
+		workbook.write(fileOut);
+		fileOut.close();
 
 	}
 }

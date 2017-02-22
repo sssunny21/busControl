@@ -29,6 +29,7 @@ $(function() {
 					<th>입사일자</th>
 					<th>상태</th>
 					<th>운행여부</th>
+					
 				</tr>
 			</thead>
 			<tbody>

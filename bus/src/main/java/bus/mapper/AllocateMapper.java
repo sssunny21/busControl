@@ -11,11 +11,17 @@ public interface AllocateMapper {
 	List<Allocate> selectFinishAllocate();
 	List<Allocate> monitoring(String today);
 	List<Allocate> selectAllo_date(String allo_date);
-	List<Allocate> selectName_Bus_num(@Param("name") String name, @Param("bus_num") String bus_num);
+	List<Allocate> searchName(String name);
+	List<Allocate> searchBus_num(String bus_num);
 	List<Allocate> selectByBusid(int busid);
 	List<Allocate> selectByDriverid(int driverid);
 	Allocate selectNewAllocate();
 	void insertAllocate(@Param("busid") Integer busid,@Param("driverid") Integer driverid,@Param("today") String today);
 	void updateCheck(int allocateid);
+	void cancelAllocate(int allocateid);
+	void cancelByDriver(int driverid);
+	void deleteByDriver(int driverid);
+	void cancelByBus(int busid);
+	void deleteByBus(int busid);
 	void deleteAllocate(int driverid);
 }

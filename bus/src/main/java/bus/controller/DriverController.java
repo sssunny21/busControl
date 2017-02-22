@@ -1,5 +1,11 @@
 package bus.controller;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import bus.dto.Allocate;
+import bus.dto.Bus;
 import bus.dto.Driver;
 import bus.dto.User;
 import bus.mapper.AllocateMapper;
@@ -49,26 +56,28 @@ public class DriverController {
 			String id = userService.printAuth(u);
 			model.addAttribute("id",id);
 		}
+		model.addAttribute("state", state);
 		model.addAttribute("driverList", driverList);
 		return "driver/driverList";
 	}
 	
 	@RequestMapping(value="/driver/driverList.gnt", method=RequestMethod.POST, params="cmd=nameSearch")
 	public String busList3(@RequestParam("name") String name, Model model) throws Exception {
-		List<Driver> driverList = driverMapper.selectByName(name);
+		List<Driver> driverList = driverMapper.searchByName(name);
 		if(UserService.getCurrentUser()!=null){
 			User u = (User)UserService.getCurrentUser();
 			String id = userService.printAuth(u);
 			model.addAttribute("id",id);
 		}
 		model.addAttribute("driverList", driverList);
+		model.addAttribute("name", name);
 		return "driver/driverList";
 	}
 	
 	@RequestMapping(value="/driver/driverList.gnt", method=RequestMethod.POST, params="cmd=excel")
-	public String busList4(Driver driver, Model model) throws Exception {
+	public String busList4(Driver driver, Model model,HttpServletRequest request, HttpServletResponse response) throws Exception {
 		List<Driver> driverList = driverMapper.selectDriverList();
-		DriverListToExcelFile.driverListToFile("driverList.xlsx", driverList);
+		DriverListToExcelFile.driverListToFile("driverList.xlsx", driverList, request, response);
 		model.addAttribute("driverList", driverList);
 		return "driver/driverList";
 	}
@@ -114,6 +123,9 @@ public class DriverController {
 		String message = driverService.validateBeforeInsert(driver);
 		if (message == null){
 			driverMapper.updateDriver(driver);
+	    	if(!driver.getState().equals("근무")){
+	    		allocateMapper.cancelByDriver(driver.getDriverid());
+	    	}
 			redirectAttributes.addFlashAttribute("errorMsg", "저장했습니다.");
 			return "redirect:/driver/driverList.gnt";
 		}else{
@@ -124,11 +136,9 @@ public class DriverController {
 	
 	@RequestMapping("/driver/driverDelete.gnt")
     public String delete(Model model, @RequestParam("driverid") int driverid,RedirectAttributes redirectAttributes) throws Exception{
-		if(!allocateMapper.selectByDriverid(driverid).isEmpty()){
-			redirectAttributes.addFlashAttribute("errorMsg", "삭제가 불가능합니다.");
-        }else{
-        	driverMapper.deleteDriver(driverid);
-        }
+		driverMapper.deleteDriver(driverid);
+		allocateMapper.deleteByDriver(driverid);
+		redirectAttributes.addFlashAttribute("errorMsg", "삭제가 완료되었습니다.");
         return "redirect:/driver/driverList.gnt";
     }
 	
@@ -140,23 +150,39 @@ public class DriverController {
 			String id = userService.printAuth(u);
 			model.addAttribute("id",id);
 		}
-		model.addAttribute("driverList", driverList);
+    	Date d = new Date();
+	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	    List<Driver> workingDriver = new ArrayList<>();
+    	for(Driver dr : driverList){
+    		if(!dr.getAllo_date().equals(sdf.format(d).toString())){
+    			workingDriver.add(dr);
+    		}else if(dr.getAllo_date().equals(sdf.format(d).toString()) && dr.isCancel_check() == true){
+    			workingDriver.add(dr);
+    		}
+    	}
+		model.addAttribute("driverList", workingDriver);
 		model.addAttribute("busid", busid);
         return "driver/workingList";
     }
 	
+	@RequestMapping(value="/driver/cancel.gnt", method=RequestMethod.GET)
+    public String cancel(@RequestParam("id") Integer allocateid, Model model) throws Exception {
+    	allocateMapper.cancelAllocate(allocateid);
+    	List<Bus> busList = busMapper.selectBusList();
+		if(UserService.getCurrentUser()!=null){
+			User u = (User)UserService.getCurrentUser();
+			String id = userService.printAuth(u);
+			model.addAttribute("id",id);
+		}
+		model.addAttribute("busList", busList);
+        return "bus/busList";
+    }
+	
 	@RequestMapping(value="/driver/selectionDriver.gnt")
 	public String selectionDriver2(@RequestParam("b_id") int busid, @RequestParam("d_id") int driverid,@RequestParam("c") String today, Model model){
-		List<Allocate> before = allocateMapper.selectAllocate();
-		int count = 0;
-		for(Allocate a : before){
-			if(a.getBusid() == busid && a.getAllo_date().equals(today)) count++;
-		}
-		if(before.isEmpty() || count == 0)
-			allocateMapper.insertAllocate(busid, driverid, today);
-
+		allocateMapper.insertAllocate(busid, driverid, today);
 		Allocate allocate = allocateMapper.selectNewAllocate();
-		if(count == 0) operateMapper.insertOperate(allocate.getAllocateid(),today);
+		operateMapper.insertOperate(allocate.getAllocateid(),today);
 		return "redirect:/bus/busList.gnt";
 	}
 }

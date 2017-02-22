@@ -5,12 +5,12 @@
 <mapper namespace="bus.mapper.BusMapper">
 	<select id="selectByBusId" resultType="bus.dto.Bus">
 		SELECT * FROM bus WHERE
-		busid = #{busid}
+		busid = #{busid} AND exist = true;
 	</select>
 	
 	<select id="selectByBusNum" resultType="bus.dto.Bus">
 		SELECT * FROM bus
-		WHERE bus_num = #{bus_num}
+		WHERE bus_num = #{bus_num} AND exist = true;
 	</select>
 	
 	<select id="searchByBusNum" resultType="bus.dto.Bus">
@@ -20,30 +20,31 @@
 		ON al.allocateid=bid.allocateid) a 
 		RIGHT JOIN bus b
 		ON b.busid = a.busid
-		where b.bus_num=#{bus_num}
+		where b.bus_num LIKE '%' || #{bus_num} || '%' AND b.exist = TRUE
 		ORDER BY a.allo_date DESC
 	</select>
 	
 	<select id="selectByState" resultType="bus.dto.Bus">
 		SELECT * FROM bus WHERE
-		state = #{state}
+		state = #{state} AND exist = TRUE;
 	</select>
 	
 	<insert id="insertBus" useGeneratedKeys="true" keyProperty="busid">
 		INSERT
-		INTO bus (bus_num, limit_passenger, intro_year, state)
+		INTO bus (bus_num, limit_passenger, intro_year, state, exist)
 		VALUES
-		(#{bus_num}, #{limit_passenger}, #{intro_year}, #{state})
+		(#{bus_num}, #{limit_passenger}, #{intro_year}, #{state}, TRUE)
 	</insert>
 	
 	<select id="selectBusList" resultType="bus.dto.Bus">
-		SELECT b.*, a.allo_date, a.cancel_check FROM 
+		SELECT b.*, a.allocateid, a.allo_date, a.cancel_check FROM 
 		(SELECT al.* FROM (SELECT busid,MAX(allocateid) allocateid FROM allocate GROUP BY busid) bid 
 		JOIN allocate al 
 		ON al.allocateid=bid.allocateid) a 
 		RIGHT JOIN bus b
 		ON b.busid = a.busid
-		ORDER BY a.allo_date DESC
+		WHERE b.exist = TRUE
+		ORDER BY a.allocateid DESC
 	</select>
 	
 	<update id="updateBus">
@@ -51,7 +52,8 @@
 		WHERE busid = #{busid}
 	</update>
 
-	<delete id="deleteBus">
-		DELETE FROM bus WHERE busid = #{busid}
-	</delete>
+	<update id="deleteBus">
+		UPDATE bus SET exist = FALSE 
+		WHERE busid = #{busid}
+	</update>
 </mapper>

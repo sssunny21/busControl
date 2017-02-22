@@ -368,13 +368,15 @@ $(function(){
 				if (index < locations.length) {
 					var delay = index === 0 ? 0 : 10000; //10초
 					setTimeout(function() {
-						if(bus.get('cur_passenger')+ locations[index].get('passenger') >= limit_passenger[0]){
+						if(bus.get('cur_passenger') + locations[index].get('passenger') >= limit_passenger[0]){
 							busContent.innerHTML = limit_passenger[0] - bus.get('cur_passenger')+'명 탑승';
-							bus.set('cur_passenger', bus.get('cur_passenger') + (limit_passenger[1] - bus.get('cur_passenger')));
+							bus.set('cur_passenger', bus.get('cur_passenger') + (limit_passenger[0] - bus.get('cur_passenger')));
 							flyTo(locations[index],index, next);
 							busOverlay.setPosition(bus.getGeometry().getCoordinates());
-							for(var i = 0; i < locations.length; i++){
-								locations[index].set('passenger',0);
+							if(locations[1].get('passenger') != 0){
+								for(var i = 0; i < locations.length; i++){
+									locations[i].set('passenger',0);
+								}
 							}
 						}else{
 							bus.set('cur_passenger', bus.get('cur_passenger')+ locations[index].get('passenger'));

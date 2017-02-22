@@ -14,11 +14,6 @@ $(function() {
         return confirm($(this).attr("data-confirm"));
     });
 });
-$(function(){
-	$('#excel').click(function() {
-	    alert("다운로드 완료!");
-	})
-});
 var error = "${errorMsg}";
 if(error) alert(error);
 </script>
@@ -26,25 +21,25 @@ if(error) alert(error);
 
 <form:form method="post" modelAttribute="driverList">
 	<div class="row" style="margin-top: 20px;">
-		<div class="col-lg-8">
+		<div class="col-lg-9" style="padding-left: 30px;">
 			<div class="form-inline">
-				<label>상태 : </label> &nbsp; <select id="state" name="state"
-					class="form-control">
-					<option value="근무" ${ state == "근무" ? "selected" : ""}>근무</option>
-					<option value="휴가" ${ state == "휴가" ? "selected" : ""}>휴가</option>
-					<option value="외근" ${ state == "외근" ? "selected" : ""}>외근</option>
-					<option value="퇴사" ${ state == "퇴사" ? "selected" : ""}>퇴사</option>
-				</select>
-				<button type="submit" class="btn btn-default" name="cmd"
-					value="selectByState">상태 조회</button>
+				<input name="name" id="name" class="form-control" value = "${ name ne null ? name : ""}" />
+				<button type="submit" class="btn btn-info" name="cmd"
+					value="nameSearch">이름 검색</button>
 			</div>
 		</div>
-		<div class="col-lg-4">
+		<div class="col-lg-3" style="padding-left: 50px;">
 			<div class="form-inline">
 				<div id="column-right">
-					<input name="name" id="name" class="form-control" />
-					<button type="submit" class="btn btn-info" name="cmd"
-						value="nameSearch">이름 검색</button>
+					<label>상태 : </label> &nbsp; <select id="state" name="state"
+						class="form-control">
+						<option value="근무" ${ state eq "근무" ? "selected" : ""}>근무</option>
+						<option value="휴가" ${ state eq "휴가" ? "selected" : ""}>휴가</option>
+						<option value="외근" ${ state eq "외근" ? "selected" : ""}>외근</option>
+						<option value="퇴사" ${ state eq "퇴사" ? "selected" : ""}>퇴사</option>
+					</select>
+					<button type="submit" class="btn btn-default" name="cmd"
+						value="selectByState">상태 조회</button>
 				</div>
 			</div>
 		</div>
@@ -73,6 +68,8 @@ if(error) alert(error);
 			</table>
 		</div>
 	</div>
-	<div align = right><button type="submit" class="btn btn-primary" id = "excel" name="cmd" value="excel">엑셀 다운로드</button></div>
+	<div align = right style="padding-right: 15px;">
+		<button type="submit" class="btn btn-success" name="cmd" value="excel">엑셀 다운로드</button>
+	</div>
 </form:form>
-<center><a href="/bus/driver/driverCreate.gnt" class="btn btn-primary">새 기사 등록</a></center>
+<center><a href="/bus/driver/driverCreate.gnt" class="btn btn-default">새 기사 등록</a></center>

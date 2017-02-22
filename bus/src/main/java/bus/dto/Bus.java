@@ -9,7 +9,14 @@ public class Bus {
 	String name;
 	String allo_date;
 	boolean cancel_check;
+	int allocateid;
 	
+	public int getAllocateid() {
+		return allocateid;
+	}
+	public void setAllocateid(int allocateid) {
+		this.allocateid = allocateid;
+	}
 	public int getBusid() {
 		return busid;
 	}

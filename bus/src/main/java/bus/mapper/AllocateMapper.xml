@@ -3,41 +3,41 @@
              "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="bus.mapper.AllocateMapper">
-	<select id="selectAllocate" resultType="bus.dto.Allocate">
+	<select id = "selectAllocate" resultType = "bus.dto.Allocate">
 		SELECT * FROM allocate
 	</select>
 	
-	<select id = "selectByBusid" resultType="bus.dto.Allocate">
+	<select id = "selectByBusid" resultType = "bus.dto.Allocate">
 		SELECT * FROM allocate
 		WHERE busid = #{busid}
 	</select>
 	
-	<select id = "selectByDriverid" resultType="bus.dto.Allocate">
+	<select id = "selectByDriverid" resultType = "bus.dto.Allocate">
 		SELECT * FROM allocate
 		WHERE driverid = #{driverid}
 	</select>
 	
-	<select id="selectFinishAllocate" resultType="bus.dto.Allocate">
-		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, a.operate_check, b.busid, a.cancel_check
+	<select id = "selectFinishAllocate" resultType = "bus.dto.Allocate">
+		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, a.operate_check, b.busid, a.cancel_check, a.cancel_reason
 		FROM allocate a
 		JOIN bus b
 		ON a.busid = b.busid
 		JOIN driver d
 		ON a.driverid = d.driverid
-		ORDER BY a.allo_date DESC
+		ORDER BY a.allocateid DESC
 	</select>
 	
-	<select id="monitoring" resultType="bus.dto.Allocate">
-		SELECT a.allocateid, a.allo_date, b.busid, b.bus_num, b.state, b.limit_passenger, d.name, a.operate_check 
+	<select id = "monitoring" resultType = "bus.dto.Allocate">
+		SELECT a.allocateid, a.allo_date, b.busid, b.bus_num, b.state, b.limit_passenger, d.name, a.operate_check, a.cancel_check
 		FROM allocate a
 		JOIN bus b
 		ON a.busid = b.busid
 		JOIN driver d
 		ON a.driverid = d.driverid
-		WHERE a.allo_date = to_date(#{today},'YYYY-MM-DD');
+		WHERE a.allo_date = to_date(#{today},'YYYY-MM-DD') and a.cancel_check = false;
 	</select>
 	
-	<select id="selectAllo_date" resultType="bus.dto.Allocate">
+	<select id = "selectAllo_date" resultType = "bus.dto.Allocate">
 		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, a.operate_check 
 		FROM allocate a
 		JOIN bus b
@@ -47,17 +47,27 @@
 		WHERE a.allo_date = to_date(#{allo_date},'YYYY-MM-DD')
 	</select>
 	
-	<select id="selectName_Bus_num" resultType="bus.dto.Allocate">
+	<select id = "searchName" resultType = "bus.dto.Allocate">
 		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, a.operate_check 
 		FROM allocate a
 		JOIN bus b
 		ON a.busid = b.busid
 		JOIN driver d
 		ON a.driverid = d.driverid
-		WHERE d.name = #{name} OR b.bus_num = #{bus_num}  
+		WHERE d.name LIKE '%' || #{name} || '%'
 	</select>
 	
-	<select id="selectNewAllocate" resultType="bus.dto.Allocate">
+	<select id = "searchBus_num" resultType = "bus.dto.Allocate">
+		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, a.operate_check 
+		FROM allocate a
+		JOIN bus b
+		ON a.busid = b.busid
+		JOIN driver d
+		ON a.driverid = d.driverid
+		WHERE b.bus_num LIKE '%' || #{bus_num} || '%'  
+	</select>
+	
+	<select id = "selectNewAllocate" resultType = "bus.dto.Allocate">
 		SELECT max(allocateid) allocateid
 		FROM allocate
 	</select>
@@ -69,9 +79,34 @@
 		(#{busid}, #{driverid}, FALSE, to_date(#{today},'YYYY-MM-DD'), FALSE)
 	</insert>
 	
-	<update id="updateCheck">
+	<update id = "updateCheck">
 		UPDATE allocate SET operate_check = TRUE
 		WHERE allocateid = #{allocateid}
+	</update>
+	
+	<update id = "cancelAllocate">
+		UPDATE allocate SET cancel_check = TRUE, cancel_reason = '관리자 임의 취소'
+		WHERE allocateid = #{allocateid}
+	</update>
+	
+	<update id = "cancelByDriver">
+		UPDATE allocate SET cancel_check = true, cancel_reason = '기사 상태 변경'
+		WHERE allocateid IN (SELECT max(allocateid) allocateid FROM allocate WHERE driverid = #{driverid})
+	</update>
+	
+	<update id = "cancelByBus">
+		UPDATE allocate SET cancel_check = true, cancel_reason = '버스 상태 변경'
+		WHERE allocateid IN (SELECT max(allocateid) allocateid FROM allocate WHERE busid = #{busid})
+	</update>
+	
+	<update id = "deleteByBus">
+		UPDATE allocate SET cancel_check = true, cancel_reason = '버스 없음'
+		WHERE busid = #{busid}
+	</update>
+	
+	<update id = "deleteByDriver">
+		UPDATE allocate SET cancel_check = true, cancel_reason = '기사 없음'
+		WHERE driverid = #{driverid}
 	</update>
 	
 	<delete id = "deleteAllocate">

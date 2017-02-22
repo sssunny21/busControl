@@ -1,7 +1,11 @@
 package bus.service;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -12,7 +16,23 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import bus.dto.Driver;
 public class DriverListToExcelFile {
-	public static void driverListToFile(String fileName, List<Driver> driverList) throws Exception{
+	public static void driverListToFile(String sfileName, List<Driver> driverList, HttpServletRequest request, HttpServletResponse response) throws Exception{
+		sfileName = new String ( sfileName.getBytes("KSC5601"), "8859_1");
+
+		response.reset();//한글 깨짐 방지
+
+		String strClient = request.getHeader("User-Agent");
+
+		String fileName = sfileName;
+
+		if (strClient.indexOf("MSIE 5.5") > -1) {
+			response.setHeader("Content-Disposition", "filename=" + fileName + ";");
+		} else {
+			response.setContentType("application/vnd.ms-excel");
+			response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ";");
+		}
+
+		OutputStream fileOut = null;
 		Workbook workbook = null;
 
 		if(fileName.endsWith("xlsx")){
@@ -53,9 +73,8 @@ public class DriverListToExcelFile {
 
 		}while(iterator.hasNext());    
 
-		FileOutputStream fos = new FileOutputStream(fileName);
-		workbook.write(fos);
-		fos.close();
-
+		fileOut = response.getOutputStream();
+		workbook.write(fileOut);
+		fileOut.close();
 	}
 }

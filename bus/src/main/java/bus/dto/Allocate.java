@@ -11,7 +11,14 @@ public class Allocate {
 	String name;
 	int limit_passenger;
 	boolean cancel_check;
+	String cancel_reason;
 	
+	public String getCancel_reason() {
+		return cancel_reason;
+	}
+	public void setCancel_reason(String cancel_reason) {
+		this.cancel_reason = cancel_reason;
+	}
 	public int getAllocateid() {
 		return allocateid;
 	}
