@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+             "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bus.mapper.BusMapper">
+	<select id="selectByBusId" resultType="bus.dto.Bus">
+		SELECT * FROM bus WHERE
+		busid = #{busid}
+	</select>
+	
+	<select id="selectByBusNum" resultType="bus.dto.Bus">
+		SELECT * FROM bus
+		WHERE bus_num = #{bus_num}
+	</select>
+	
+	<select id="searchByBusNum" resultType="bus.dto.Bus">
+		SELECT b.*, a.allo_date FROM 
+		(SELECT al.* FROM (SELECT busid,MAX(allocateid) allocateid FROM allocate GROUP BY busid) bid 
+		JOIN allocate al 
+		ON al.allocateid=bid.allocateid) a 
+		RIGHT JOIN bus b
+		ON b.busid = a.busid
+		where b.bus_num=#{bus_num}
+		ORDER BY a.allo_date DESC
+	</select>
+	
+	<select id="selectByState" resultType="bus.dto.Bus">
+		SELECT * FROM bus WHERE
+		state = #{state}
+	</select>
+	
+	<insert id="insertBus" useGeneratedKeys="true" keyProperty="busid">
+		INSERT
+		INTO bus (bus_num, limit_passenger, intro_year, state)
+		VALUES
+		(#{bus_num}, #{limit_passenger}, #{intro_year}, #{state})
+	</insert>
+	
+	<select id="selectBusList" resultType="bus.dto.Bus">
+		SELECT b.*, a.allo_date, a.cancel_check FROM 
+		(SELECT al.* FROM (SELECT busid,MAX(allocateid) allocateid FROM allocate GROUP BY busid) bid 
+		JOIN allocate al 
+		ON al.allocateid=bid.allocateid) a 
+		RIGHT JOIN bus b
+		ON b.busid = a.busid
+		ORDER BY a.allo_date DESC
+	</select>
+	
+	<update id="updateBus">
+		UPDATE bus SET bus_num = #{bus_num}, limit_passenger = #{limit_passenger}, intro_year = #{intro_year}, state = #{state}
+		WHERE busid = #{busid}
+	</update>
+
+	<delete id="deleteBus">
+		DELETE FROM bus WHERE busid = #{busid}
+	</delete>
+</mapper>

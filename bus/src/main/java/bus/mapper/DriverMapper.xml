@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+             "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bus.mapper.DriverMapper">
+	<select id="selectByDriverId" resultType="bus.dto.Driver">
+		SELECT * FROM driver WHERE driverid=#{driverid}
+	</select>
+	
+	<select id="selectByState" resultType="bus.dto.Driver">
+		SELECT * FROM driver WHERE state=#{state}
+	</select>
+	
+	<select id="selectByName" resultType="bus.dto.Driver">
+		SELECT * FROM driver WHERE name=#{name}
+	</select>
+	
+	<select id="selectByWorking" resultType="bus.dto.Driver">
+		SELECT d.*, a.allocateid FROM 
+		(SELECT driverid,max(allocateid) allocateid FROM allocate GROUP BY driverid) a
+		RIGHT JOIN driver d
+		ON a.driverid = d.driverid
+		WHERE state = '근무';
+	</select>
+
+	<insert id="insertDriver" useGeneratedKeys="true" keyProperty="driverid">
+		INSERT
+		INTO driver (name, birth, join_date, state)
+		VALUES
+		(#{name}, to_date(#{birth},'YYYY-MM-DD'), to_date(#{join_date},'YYYY-MM-DD'), #{state})
+	</insert>
+	
+	<select id="selectDriverList" resultType="bus.dto.Driver">
+		SELECT * FROM driver ORDER BY driverid
+	</select>
+	
+	<update id="updateDriver">
+		UPDATE driver SET name = #{name}, birth = to_date(#{birth},'YYYY-MM-DD'), join_date = to_date(#{join_date},'YYYY-MM-DD'), state = #{state}
+		WHERE driverid = #{driverid}
+	</update>
+	
+	<delete id="deleteDriver">
+		DELETE FROM driver WHERE driverid = #{driverid}
+	</delete>
+</mapper>

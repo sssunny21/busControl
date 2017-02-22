@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+             "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bus.mapper.AllocateMapper">
+	<select id="selectAllocate" resultType="bus.dto.Allocate">
+		SELECT * FROM allocate
+	</select>
+	
+	<select id = "selectByBusid" resultType="bus.dto.Allocate">
+		SELECT * FROM allocate
+		WHERE busid = #{busid}
+	</select>
+	
+	<select id = "selectByDriverid" resultType="bus.dto.Allocate">
+		SELECT * FROM allocate
+		WHERE driverid = #{driverid}
+	</select>
+	
+	<select id="selectFinishAllocate" resultType="bus.dto.Allocate">
+		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, a.operate_check, b.busid, a.cancel_check
+		FROM allocate a
+		JOIN bus b
+		ON a.busid = b.busid
+		JOIN driver d
+		ON a.driverid = d.driverid
+		ORDER BY a.allo_date DESC
+	</select>
+	
+	<select id="monitoring" resultType="bus.dto.Allocate">
+		SELECT a.allocateid, a.allo_date, b.busid, b.bus_num, b.state, b.limit_passenger, d.name, a.operate_check 
+		FROM allocate a
+		JOIN bus b
+		ON a.busid = b.busid
+		JOIN driver d
+		ON a.driverid = d.driverid
+		WHERE a.allo_date = to_date(#{today},'YYYY-MM-DD');
+	</select>
+	
+	<select id="selectAllo_date" resultType="bus.dto.Allocate">
+		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, a.operate_check 
+		FROM allocate a
+		JOIN bus b
+		ON a.busid = b.busid
+		JOIN driver d
+		ON a.driverid = d.driverid
+		WHERE a.allo_date = to_date(#{allo_date},'YYYY-MM-DD')
+	</select>
+	
+	<select id="selectName_Bus_num" resultType="bus.dto.Allocate">
+		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, a.operate_check 
+		FROM allocate a
+		JOIN bus b
+		ON a.busid = b.busid
+		JOIN driver d
+		ON a.driverid = d.driverid
+		WHERE d.name = #{name} OR b.bus_num = #{bus_num}  
+	</select>
+	
+	<select id="selectNewAllocate" resultType="bus.dto.Allocate">
+		SELECT max(allocateid) allocateid
+		FROM allocate
+	</select>
+	
+	<insert id = "insertAllocate">
+		INSERT
+		INTO allocate (busid, driverid, operate_check, allo_date, cancel_check)
+		VALUES
+		(#{busid}, #{driverid}, FALSE, to_date(#{today},'YYYY-MM-DD'), FALSE)
+	</insert>
+	
+	<update id="updateCheck">
+		UPDATE allocate SET operate_check = TRUE
+		WHERE allocateid = #{allocateid}
+	</update>
+	
+	<delete id = "deleteAllocate">
+		DELETE FROM allocate
+		WHERE driverid = #{driverid}
+	</delete>
+</mapper>

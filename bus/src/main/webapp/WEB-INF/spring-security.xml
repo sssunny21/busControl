@@ -1,0 +1,22 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+	<http auto-config="true">
+		<intercept-url pattern="/bus/*" access="ROLE_1" />
+		<intercept-url pattern="/driver/*" access="ROLE_1" />
+		<intercept-url pattern="/operate/*" access="ROLE_1" />
+		
+		<form-login login-page="/home/login.gnt"
+			login-processing-url="/home/login_processing.gnt"
+			authentication-failure-url="/home/login.gnt?error" 
+			default-target-url="/bus/busList.gnt"
+			username-parameter="id" password-parameter="password" />
+		<logout logout-url="/home/logout.gnt" logout-success-url="/home/login.gnt"
+			invalidate-session="true" />
+	</http>
+	<authentication-manager>
+		<authentication-provider ref="myAuthenticationProvider" />
+	</authentication-manager>
+	<beans:bean id="webexpressionHandler"
+		class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" />
+</beans:beans>

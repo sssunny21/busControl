@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+             "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bus.mapper.OperateMapper">
+	<insert id = "insertOperate">
+		INSERT
+		INTO operate (allocateid, oper_date, oper_count, accu_passenger)
+		VALUES (#{allocateid}, to_date(#{today},'YYYY-MM-DD'), 0, 0)
+	</insert>
+	
+	<select id = "selectBusStop" resultType="bus.dto.BusStop">
+		SELECT * FROM busstop
+	</select>
+	
+	<select id = "selectStart" resultType="bus.dto.BusStop">
+		SELECT * FROM start
+	</select>
+	
+	<select id = "selectRoute" resultType = "bus.dto.Route">
+		SELECT * FROM route	
+	</select>
+	
+	<select id = "selectStatistics" resultType="bus.dto.Operate">
+		SELECT o.*, b.bus_num, div(o.accu_passenger,o.oper_count) average 
+		FROM operate o
+		JOIN allocate a
+		ON o.allocateid = a.allocateid
+		JOIN bus b
+		ON a.busid = b.busid
+		WHERE o.oper_count > 0
+		ORDER BY o.oper_date DESC
+	</select>
+	
+	<update id="updateOperate">
+		UPDATE operate SET oper_count = #{oper_count}, accu_passenger = #{accu_passenger}
+		WHERE operateid = #{operateid}
+	</update>
+	
+	<select id = "selectNewOperate" resultType = "bus.dto.Operate">
+		SELECT max(operateid) operateid FROM operate WHERE allocateid = #{allocateid}
+	</select>
+	
+	<select id = "selectBefore" resultType = "bus.dto.Operate">
+		SELECT * FROM operate 
+		WHERE operateid = #{operateid}
+	</select>
+
+</mapper>
