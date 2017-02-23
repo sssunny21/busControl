@@ -205,7 +205,7 @@ $(function(){
 	
 	/***지도 설정***/
 	var vectorSource = new ol.source.Vector({
-		features : [ start, b1, b2, b3, b4, b5, bus, bus2 ]
+		features : [ start, b1, b2, b3, b4, b5, bus]
 	});
 
 	var vectorLayer = new ol.layer.Vector({
@@ -346,8 +346,10 @@ $(function(){
 				done(complete);
 			}
 		}
-		bus.setGeometry(location.getGeometry());
+		//console.log(location);
+		bus.setGeometry(location);
 		bus.set('num',index);
+		busOverlay.setPosition(bus.getGeometry().getCoordinates());
 		/* map.on(move);
 		var move = function(event){
 			var frameState = event.frameState;
@@ -367,33 +369,32 @@ $(function(){
 
 	/***운행 함수***/
 	function drive(bus, operateid) {
-		var locations = [ start, b1, b2, b3, b4, b5, start ];
+		var locations = [start, b1, b2, b3, b4, b5, start];
 		var index = -1;
+		var location_index = 0;
 		function next(more) {
 			if (more) {
 				++index;
 				var now = new Date().getTime();
-				if (index < locations.length) {
-					var delay = index === 0 ? 0 : 10000; //10초
+				if (index < routeXY.length) {
+					var delay = index === 0 ? 0 : 1000; //1초
 					setTimeout(function() {
-						if(bus.get('cur_passenger') + locations[index].get('passenger') >= limit_passenger[0]){
-							busContent.innerHTML = limit_passenger[0] - bus.get('cur_passenger')+'명 탑승';
-							bus.set('cur_passenger', bus.get('cur_passenger') + (limit_passenger[0] - bus.get('cur_passenger')));
-							flyTo(locations[index],index, next);
-							busOverlay.setPosition(bus.getGeometry().getCoordinates());
-							if(locations[1].get('passenger') != 0){
-								for(var i = 0; i < locations.length; i++){
-									locations[i].set('passenger',0);
-								}
+						var current = new ol.geom.Point([ routeXY[index], routeXY[index+1] ]);
+						console.log("lo"+locations[0].getGeometry().getCoordinates()+" current:"+current.getCoordinates());
+						for(var i = 0; i < locations.length; i++){
+							if(current.getCoordinates().toString() == locations[i].getGeometry().getCoordinates().toString()){
+								console.log("정류장도착"+locations[i].getGeometry()+" current:"+current);
+								bus.set('cur_passenger', bus.get('cur_passenger')+ locations[i].get('passenger'));
+								busContent.innerHTML = locations[i].get('passenger')+ '명 탑승';
+								location_index = i;
 							}
-						}else{
-							bus.set('cur_passenger', bus.get('cur_passenger')+ locations[index].get('passenger'));
-							busContent.innerHTML = locations[index].get('passenger')+ '명 탑승';
-							flyTo(locations[index],index, next);
-							busOverlay.setPosition(bus.getGeometry().getCoordinates());
 						}
+						index++;
+						flyTo(current,location_index, next);
 					}, delay);
 				} else {
+					current = new ol.geom.Point([ routeXY[0], routeXY[1] ]);
+					bus.setGeometry(current);
 					bus.set('oper_count', 1);
 					bus.set('accu_passenger', bus.get('cur_passenger'));
 					bus.set('cur_passenger', 0);
@@ -412,11 +413,9 @@ $(function(){
 							alert("운행 완료 \n총 "+ bus.get('accu_passenger')+ "명 탑승!");
 							jQuery('.end').show();
 							jQuery('.start').hide();
-
 						},
 						error : function(jqXHR, textStatus, errorThrown) {
-							alert("에러발생 \n" + textStatus + " : "
-									+ errorThrown);
+							alert("에러발생 \n" + textStatus + " : "+ errorThrown);
 							self.close();
 						}
 					});//운행완료
