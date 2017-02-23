@@ -12,7 +12,14 @@ public class Allocate {
 	int limit_passenger;
 	boolean cancel_check;
 	String cancel_reason;
+	int operateid;
 	
+	public int getOperateid() {
+		return operateid;
+	}
+	public void setOperateid(int operateid) {
+		this.operateid = operateid;
+	}
 	public String getCancel_reason() {
 		return cancel_reason;
 	}

@@ -10,18 +10,22 @@ label {
 <script>
 var error = "${errorMsg}";
 if(error) alert(error);
+$(function(){
+ $(document).on("keyup", "input:text[numberOnly]", function() {$(this).val( $(this).val().replace(/[^0-9]/gi,"") );});
+});
 </script>
 <h4>버스 등록</h4>
+
 <div class="col-lg-4">
 <form:form method="post" modelAttribute="bus">
 	<label>차량번호 </label>
 	<form:input path="bus_num" class="form-control" maxlength = "8"/>
 	<br>
 	<label>승차인원 </label>
-	<form:input path="limit_passenger" class="form-control"  onkeydown="return keypress(event)"/>
+	<form:input path="limit_passenger" class="form-control" numberonly="true"/>
 	<br>
 	<label>도입년도 </label>
-	<form:input path="intro_year" class="form-control" onkeydown="return keypress(event)"/>
+	<form:input path="intro_year" class="form-control" numberonly="true" />
 	<br>
 	<label>상태 </label>
 	<form:select path="state" class="form-control">
@@ -31,7 +35,7 @@ if(error) alert(error);
 		<form:option value="폐기" label="폐기" />
 	</form:select>
 
-	<div>
+	<div align = "center">
 		<input type="submit" class="btn btn-primary" style="margin-top: 10px;" value="저장" />
 	</div>
 </form:form>

@@ -14,6 +14,7 @@ import bus.dto.Allocate;
 import bus.dto.BusStop;
 import bus.dto.Operate;
 import bus.dto.Route;
+import bus.dto.Sequence;
 import bus.dto.User;
 import bus.mapper.AllocateMapper;
 import bus.mapper.OperateMapper;
@@ -25,40 +26,14 @@ public class OperateController {
 	@Autowired OperateMapper operateMapper;
 	@Autowired UserService userService;
 	
-	@RequestMapping(value="/operate/operateList.gnt", method=RequestMethod.POST, params="cmd=start")
-	public String start(@RequestParam(value="allocateid") int allocateid, Model model) throws Exception {
-		allocateMapper.updateCheck(allocateid);
-		Operate operate = operateMapper.selectNewOperate(allocateid);
-		
-		Date d = new Date();
-	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		List<Allocate> allocateList = allocateMapper.monitoring(sdf.format(d));
-		List<BusStop> busStopList = operateMapper.selectBusStop();
-		BusStop start = operateMapper.selectStart();
-		List<Route> routeList = operateMapper.selectRoute();
-		
-		if(UserService.getCurrentUser()!=null){
-			User u = (User)UserService.getCurrentUser();
-			String id = userService.printAuth(u);
-			model.addAttribute("id",id);
-		}
-		
-		model.addAttribute("operate", operate);
-		model.addAttribute("allocateList", allocateList);
-		model.addAttribute("busStopList", busStopList);
-		model.addAttribute("start", start);
-		model.addAttribute("routeList", routeList);
-
-		return "operate/operateList";
-	}
-	
-	@RequestMapping(value="/operate/operateList.gnt", method=RequestMethod.GET)
+	@RequestMapping(value="/operate/operateList.gnt")
     public String operateList(Model model) throws Exception {
 		Date d = new Date();
 	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		List<Allocate> allocateList = allocateMapper.monitoring(sdf.format(d));
 		List<BusStop> busStopList = operateMapper.selectBusStop();
 		BusStop start = operateMapper.selectStart();
+		List<Sequence> sequenceList = operateMapper.selectSequence();
 		if(UserService.getCurrentUser()!=null){
 			User u = (User)UserService.getCurrentUser();
 			String id = userService.printAuth(u);
@@ -67,6 +42,7 @@ public class OperateController {
 		model.addAttribute("allocateList", allocateList);
 		model.addAttribute("busStopList", busStopList);
 		model.addAttribute("start", start);
+		model.addAttribute("sequenceList", sequenceList);
 		return "operate/operateList";
     }
 

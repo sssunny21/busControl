@@ -17,8 +17,8 @@
 		SELECT * FROM start
 	</select>
 	
-	<select id = "selectRoute" resultType = "bus.dto.Route">
-		SELECT * FROM route	
+	<select id = "selectSequence" resultType = "bus.dto.Sequence">
+		SELECT * FROM sequence	
 	</select>
 	
 	<select id = "selectStatistics" resultType="bus.dto.Operate">

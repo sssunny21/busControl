@@ -3,6 +3,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<style>
+.start { display: none; }
+</style>
 <script>
 function check_only(chk){
     var obj = document.getElementsByName("allocateid");
@@ -13,7 +16,7 @@ function check_only(chk){
     }
 }
 $(function(){
-	$('#cmd').click(function() {
+	$('#drive').click(function() {
 	    var ischecked = $("input:checkbox[name=allocateid]").is(":checked");
 	    if(!ischecked){
 	        alert("차량을 선택해주세요.");
@@ -53,22 +56,26 @@ $(function(){
 				<c:forEach var="allocateList" items="${allocateList}">
 				<c:if test="${allocateList.state eq '운행' }">
 					<tr>
-						<td><input type="checkbox" name = "allocateid" value = "${allocateList.allocateid }" onclick="check_only(this)"></td>
+						<td><input type="checkbox" name = "allocateid" value = "${allocateList.operateid }" onclick="check_only(this)"></td>
 						<td>${allocateList.bus_num }</td>
 						<td>${allocateList.state}</td>
 						<td>${allocateList.name }</td>
-						<td>${allocateList.operate_check == true ? "시작" : "대기"}</td>
+						<td class = "start">시작</td>
+						<td class = "end">대기</td>
 					</tr>
 				</c:if>
 				</c:forEach>
 			</tbody>
 		</table>
 	</div>
-	<center><button type="submit" class="btn btn-primary" id="cmd" name="cmd" value="start">운행 시작</button></center>
+	<center>
+	<button id="drive" type="button" class="btn btn-info">운행 시작</button>
+	</center>
 </form:form>
-<c:if test="${operate.operateid eq 0 }">
+<!--<c:if test="${operate.operateid eq 0 }">
 <button id="drive" class="btn btn-default">출발</button>
-</c:if>
+</c:if> -->
+
 <div id="map" class="map" style="margin-top: 15px;">
  <div id="popup" class="ol-popup">
    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
@@ -83,13 +90,15 @@ $(function(){
 	var busContent = document.getElementById('bus-content');
 	var closer = document.getElementById('popup-closer');
 	
+	/***지도 변수***/
 	var start = new Array();
 	var busStopList = new Array();
 	var xy = new Array();
 	var bus_num = new Array();
-	var route = new Array();
+	var routeXY = new Array();
 	var limit_passenger = new Array();
-	
+	var operateid = 0;
+
 	start.push("${start.node_name}");
 	xy.push("${start.x}", "${start.y}");
 	<c:forEach var="busStopList" items="${busStopList}">
@@ -97,27 +106,21 @@ $(function(){
 		xy.push("${busStopList.x}", "${busStopList.y}");
 	</c:forEach>
 	var xyLength = xy.length;
-	var operateid = "${operate.operateid}";
 	<c:forEach var="allocateList" items="${allocateList}">
 		bus_num.push("${allocateList.bus_num}");
 		limit_passenger.push("${allocateList.limit_passenger}");
 	</c:forEach>
-	<c:forEach var="routeList" items="${routeList}">
-		route.push("${routeList.geom}");
+	<c:forEach var="sequenceList" items="${sequenceList}">
+		routeXY.push("${sequenceList.x}","${sequenceList.y}");
 	</c:forEach>
-
+	
+	/***Feature들**/
 	var bus = new ol.Feature({
 		geometry : new ol.geom.Point([ xy[0], xy[1] ]),
 		cur_passenger : 0,
 		oper_count : 0,
 		accu_passenger : 0,
 		num : 0
-	});
-	var bus2 = new ol.Feature({
-		geometry : new ol.geom.Point([ xy[0], xy[1] ]),
-		cur_passenger : 0,
-		oper_count : 0,
-		accu_passenger : 0
 	});
 	var start = new ol.Feature({
 		geometry : new ol.geom.Point([ xy[0], xy[1] ]),
@@ -162,6 +165,7 @@ $(function(){
 		bus_num : bus_num[0]
 	});
 
+	/***Feature 스타일***/
 	var iconStyleStart = new ol.style.Style({
 		image : new ol.style.Icon(({
 			anchor : [ 0.5, 60 ],
@@ -199,6 +203,7 @@ $(function(){
 	b4.setStyle(iconStyleBusStop);
 	b5.setStyle(iconStyleBusStop);
 	
+	/***지도 설정***/
 	var vectorSource = new ol.source.Vector({
 		features : [ start, b1, b2, b3, b4, b5, bus, bus2 ]
 	});
@@ -214,8 +219,7 @@ $(function(){
 	var pureCoverage = false;
 
 	var format = 'image/png';
-	var bounds = [ 126.96002166748066, 37.38964813232441, 127.04876739501934,
-			37.47839385986309 ];
+	var bounds = [ 126.96002166748066, 37.38964813232441, 127.04876739501934, 37.47839385986309 ];
 	var mousePositionControl = new ol.control.MousePosition({
 		className : 'custom-mouse-position',
 		target : document.getElementById('location'),
@@ -269,7 +273,8 @@ $(function(){
 		loadTilesWhileAnimating : true,
 		view : view
 	});
-
+	
+	/***정류장 정보 팝업 오버레이***/
 	var element = document.getElementById('popup');
 	var popup = new ol.Overlay({
 		element : element,
@@ -279,6 +284,7 @@ $(function(){
 	});
 	map.addOverlay(popup);
 	
+	/***버스 탑승인원 오버레이***/
 	var busOverlay = new ol.Overlay({
 		element : document.getElementById('busOverlay'),
 		offset : [10, -75]
@@ -298,8 +304,9 @@ $(function(){
 		var mpu = ol.proj.METERS_PER_UNIT[units];
 	});
 
-	map.getView().setZoom(15.5);
+	map.getView().setZoom(15.5); // zoom 설정
 	
+	/***정류장 팝업 정보들***/
 	map.on('click', function(evt) {
 		var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
 			return feature;
@@ -325,6 +332,7 @@ $(function(){
 		}
 	});
 
+	/***버스 이동 함수***/
 	function flyTo(location, index, done) {
 		var parts = 1;
 		var called = false;
@@ -357,10 +365,10 @@ $(function(){
 		callback(true);
 	}
 
+	/***운행 함수***/
 	function drive(bus, operateid) {
 		var locations = [ start, b1, b2, b3, b4, b5, start ];
 		var index = -1;
-		var count = 0;
 		function next(more) {
 			if (more) {
 				++index;
@@ -386,9 +394,10 @@ $(function(){
 						}
 					}, delay);
 				} else {
-					bus.set('oper_count', ++count);
+					bus.set('oper_count', 1);
 					bus.set('accu_passenger', bus.get('cur_passenger'));
 					bus.set('cur_passenger', 0);
+					console.log("count"+bus.get('oper_count')+"accu"+bus.get('accu_passenger'));
 					var afterOperate = {
 						"operateid" : operateid,
 						"oper_count" : bus.get('oper_count'),
@@ -401,6 +410,9 @@ $(function(){
 						data : afterOperate,
 						success : function(data) {
 							alert("운행 완료 \n총 "+ bus.get('accu_passenger')+ "명 탑승!");
+							jQuery('.end').show();
+							jQuery('.start').hide();
+
 						},
 						error : function(jqXHR, textStatus, errorThrown) {
 							alert("에러발생 \n" + textStatus + " : "
@@ -415,11 +427,15 @@ $(function(){
 		}
 		next(true);
 	}
-
-	if (operateid != "") {
+	$('#drive').click(function(){
+		jQuery('.start').show();
+		jQuery('.end').hide();
+		var obj = $("input:checkbox[name=allocateid]");
+		for(var i = 0; i < obj.length; i++){
+		    if(obj[i].checked == true){
+		    	operateid = obj[i].value;
+		    }
+	    }
 		drive(bus, operateid);
-	}
-	/* if(operateid.length > 0){
-		drive(bus2,operateid);
-	} */
+	})
 </script>

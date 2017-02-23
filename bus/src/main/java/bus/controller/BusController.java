@@ -163,12 +163,26 @@ public class BusController {
 	@RequestMapping(value="/bus/allocateList.gnt", method=RequestMethod.POST, params="cmd=allocateSearch")
     public String allocateList(@RequestParam("selection") String selection, @RequestParam("search") String search, Model model) throws Exception {
 		List<Allocate> allocateList;
-		if(selection.equals("allo_date")) {
-			allocateList = allocateMapper.selectAllo_date(search);
-		}else if(selection.equals("name")){
-			allocateList = allocateMapper.searchName(search);
+		allocateList = allocateMapper.selectAllo_date(search);
+		
+		if(UserService.getCurrentUser()!=null){
+			User u = (User)UserService.getCurrentUser();
+			String id = userService.printAuth(u);
+			model.addAttribute("id",id);
+		}
+		model.addAttribute("selection", selection);
+		model.addAttribute("search", search);
+		model.addAttribute("allocateList", allocateList);
+        return "bus/allocateList";
+    }
+	
+	@RequestMapping(value="/bus/allocateList.gnt", method=RequestMethod.POST, params="cmd=allocateSearch2")
+    public String allocateList2(@RequestParam("selection") String selection, @RequestParam("search2") String search2, Model model) throws Exception {
+		List<Allocate> allocateList;
+		if(selection.equals("name")){
+			allocateList = allocateMapper.searchName(search2);
 		}else{
-			allocateList = allocateMapper.searchBus_num(search);
+			allocateList = allocateMapper.searchBus_num(search2);
 		}
 		if(UserService.getCurrentUser()!=null){
 			User u = (User)UserService.getCurrentUser();
@@ -176,6 +190,7 @@ public class BusController {
 			model.addAttribute("id",id);
 		}
 		model.addAttribute("selection", selection);
+		model.addAttribute("search2", search2);
 		model.addAttribute("allocateList", allocateList);
         return "bus/allocateList";
     }

@@ -12,25 +12,21 @@ $(function(){
 });
 function keypress(event)
 {
- var key;
- if (window.event) { 
-     // IE에서 이벤트를 확인하기 위한 설정 
-     key = window.event.keyCode;
- } else { 
-     // FireFox에서 이벤트를 확인하기 위한 설정 
-     key = event.which;
- }
-  
- if(event.shiftKey) event.preventDefault();
- if(key == 16) event.preventDefault();
- if (key == 46 || key == 8){}
- else 
- {
-  if (key < 95) {
-   if (key < 48 || key > 57) event.preventDefault();
-  }
-  else {
-   if (key < 96 || key > 105) event.preventDefault();
-  }
- }
+	 var key;
+	 if (window.event) { 
+	     // IE에서 이벤트를 확인하기 위한 설정 
+	     key = window.event.keyCode;
+	 } else { 
+	     // FireFox에서 이벤트를 확인하기 위한 설정 
+	     key = event.which;
+	 }
+	  
+	 if(event.shiftKey) event.preventDefault();
+	 if(key == 16) event.preventDefault();
+	 if( ( keyID >=48 && keyID <= 57 ) || ( keyID >=96 && keyID <= 105 ) ){
+		return;
+	 }else{
+		event.preventDefault();
+	 }
+
 }

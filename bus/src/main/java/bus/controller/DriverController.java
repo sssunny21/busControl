@@ -150,11 +150,14 @@ public class DriverController {
 			String id = userService.printAuth(u);
 			model.addAttribute("id",id);
 		}
+    	
     	Date d = new Date();
 	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	    List<Driver> workingDriver = new ArrayList<>();
     	for(Driver dr : driverList){
-    		if(!dr.getAllo_date().equals(sdf.format(d).toString())){
+    		if(dr.getAllocateid() == 0){
+    			workingDriver.add(dr);
+    		}else if(!dr.getAllo_date().equals(sdf.format(d).toString())){
     			workingDriver.add(dr);
     		}else if(dr.getAllo_date().equals(sdf.format(d).toString()) && dr.isCancel_check() == true){
     			workingDriver.add(dr);
@@ -163,6 +166,35 @@ public class DriverController {
 		model.addAttribute("driverList", workingDriver);
 		model.addAttribute("busid", busid);
         return "driver/workingList";
+    }
+	
+	@RequestMapping(value="/driver/reworkingList.gnt", method=RequestMethod.GET)
+    public String reworkingList(@RequestParam("id") Integer allocateid, @RequestParam("busid") Integer busid, Model model) throws Exception {
+    	List<Driver> driverList = driverMapper.selectByWorking();
+    	if(UserService.getCurrentUser()!=null){
+			User u = (User)UserService.getCurrentUser();
+			String id = userService.printAuth(u);
+			model.addAttribute("id",id);
+		}
+    	
+    	Date d = new Date();
+	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	    List<Driver> workingDriver = new ArrayList<>();
+	    
+	    for(Driver dr : driverList){
+    		if(dr.getAllocateid() == 0){
+    			workingDriver.add(dr);
+    		}else if(!dr.getAllo_date().equals(sdf.format(d).toString())){
+    			workingDriver.add(dr);
+    		}else if(dr.getAllo_date().equals(sdf.format(d).toString()) && dr.isCancel_check() == true){
+    			workingDriver.add(dr);
+    		}
+    	}
+
+		model.addAttribute("driverList", workingDriver);
+		model.addAttribute("busid", busid);
+		model.addAttribute("allocateid", allocateid);
+        return "driver/reworkingList";
     }
 	
 	@RequestMapping(value="/driver/cancel.gnt", method=RequestMethod.GET)
@@ -179,10 +211,17 @@ public class DriverController {
     }
 	
 	@RequestMapping(value="/driver/selectionDriver.gnt")
-	public String selectionDriver2(@RequestParam("b_id") int busid, @RequestParam("d_id") int driverid,@RequestParam("c") String today, Model model){
+	public String selectionDriver(@RequestParam("b_id") int busid, @RequestParam("d_id") int driverid,@RequestParam("c") String today, Model model){
 		allocateMapper.insertAllocate(busid, driverid, today);
 		Allocate allocate = allocateMapper.selectNewAllocate();
 		operateMapper.insertOperate(allocate.getAllocateid(),today);
 		return "redirect:/bus/busList.gnt";
 	}
+	
+	@RequestMapping(value="/driver/selectionDriver2.gnt")
+	public String selectionDriver2(@RequestParam("id") int allocateid, @RequestParam("b_id") int busid, @RequestParam("d_id") int driverid,@RequestParam("c") String today, Model model){
+		allocateMapper.updateAllocate(busid, driverid, today, allocateid);
+		return "redirect:/bus/busList.gnt";
+	}
+	
 }

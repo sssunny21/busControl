@@ -8,6 +8,10 @@
 		location.href = "../driver/workingList.gnt?busid=" + busid;
 		event.stopPropagation();
 	}
+	function reworking(busid, allocateid) {
+		location.href = "../driver/reworkingList.gnt?id="+allocateid+"&&busid=" + busid;
+		event.stopPropagation();
+	}
 	function cancel(allocateid) {
 		location.href = "../driver/cancel.gnt?id=" + allocateid;
 		event.stopPropagation();
@@ -26,6 +30,7 @@
 	var error = "${errorMsg}";
 	if (error)
 		alert(error);
+	
 </script>
 <h4>차량정보 목록</h4>
 <jsp:useBean id="now" class="java.util.Date" />
@@ -76,19 +81,20 @@
 						<td>${busList.intro_year }</td>
 						<td>${busList.state }</td>
 						<td>
-							<!-- 오늘이 아닌 날짜에 배정했을 때 --> <c:if
-								test="${busList.state eq '운행' and busList.allo_date ne today}">
-							배정 미완료 &nbsp;&nbsp;<div class="btn btn-primary btn-xs"
-									onclick="working('${busList.busid }')">배정</div>
-							</c:if> <!-- 오늘 배정했지만 이미 취소한 배정일 때 --> <c:if
-								test="${busList.state eq '운행' and busList.allo_date eq today and busList.cancel_check eq true}">
-							배정 취소됨 &nbsp;&nbsp;<div class="btn btn-primary btn-xs"
-									onclick="working('${busList.busid }')">배정</div>
-							</c:if> <!-- 오늘 배정했고 취소도 아직 안했을 때 취소 가능 --> <c:if
-								test="${busList.state eq '운행' and busList.allo_date eq today and busList.cancel_check eq false}">
-							배정 완료 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<div
-									class="btn btn-danger btn-xs"
-									onclick="cancel('${busList.allocateid }')">배정취소</div>
+							<!-- 오늘이 아닌 날짜에 배정했을 때 --> 
+							<c:if test="${busList.state eq '운행' and busList.allo_date ne today}">
+							배정 미완료 &nbsp;&nbsp;
+							<div class="btn btn-primary btn-xs" onclick="working('${busList.busid }')">배정</div>
+							</c:if> 
+							<!-- 오늘 배정했지만 이미 취소한 배정일 때 --> 
+							<c:if test="${busList.state eq '운행' and busList.allo_date eq today and busList.cancel_check eq true}">
+							배정 취소됨 &nbsp;&nbsp;
+							<div class="btn btn-primary btn-xs" onclick="reworking('${busList.busid }','${busList.allocateid }')">배정</div>
+							</c:if> 
+							<!-- 오늘 배정했고 취소도 아직 안했을 때 취소 가능 --> 
+							<c:if test="${busList.state eq '운행' and busList.allo_date eq today and busList.cancel_check eq false}">
+							배정 완료 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<div class="btn btn-danger btn-xs" onclick="cancel('${busList.allocateid }')">배정취소</div>
 							</c:if>
 						</td>
 					</tr>

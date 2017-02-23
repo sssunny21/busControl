@@ -10,6 +10,9 @@ label {
 <script>
 var error = "${errorMsg}";
 if(error) alert(error);
+$(function(){
+	$(document).on("keyup", "input:text[datetimeOnly]", function() {$(this).val( $(this).val().replace(/[^0-9:\-]/gi,"") );});
+});
 </script>
 <h4>기사 등록</h4>
 <div class="col-lg-4">
@@ -18,10 +21,10 @@ if(error) alert(error);
 	<form:input path="name" class="form-control" maxlength="30"/>
 	<br>
 	<label>생년월일 </label>
-	<form:input path="birth" class="form-control datepicker"/>
+	<form:input path="birth" class="form-control datepicker" datetimeOnly="true"/>
 	<br>
 	<label>입사일자 </label>
-	<form:input path="join_date" class="form-control datepicker"/>
+	<form:input path="join_date" class="form-control datepicker" datetimeOnly="true"/>
 	<br>
 	<label>상태 </label>
 	<form:select path="state" class="form-control">
@@ -31,7 +34,7 @@ if(error) alert(error);
 		<form:option value="퇴사" label="퇴사" />
 	</form:select>
 	<form:hidden path="driverid"/>
-	<div>
+	<div align = "center">
 		<input type="submit" class="btn btn-primary" style="margin-top: 10px;" value="저장" />
 	</div>
 </form:form>

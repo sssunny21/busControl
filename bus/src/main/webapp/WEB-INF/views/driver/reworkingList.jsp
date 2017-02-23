@@ -35,7 +35,7 @@ $(function() {
 			<tbody>
 				<c:forEach var="driverList" items="${driverList}">
 					<fmt:formatDate value="${now}" pattern="yyyy-MM-dd" var="today" />
-					<tr data-url="/bus/driver/selectionDriver.gnt?d_id=${driverList.driverid }&b_id=${busid}&c=${today}">
+					<tr data-url="/bus/driver/selectionDriver2.gnt?id=${allocateid }&d_id=${driverList.driverid }&b_id=${busid}&c=${today}">
 						<td>${driverList.name }</td>
 						<td>${driverList.birth }</td>
 						<td>${driverList.join_date }</td>

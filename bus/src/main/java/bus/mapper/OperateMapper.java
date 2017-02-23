@@ -6,14 +6,14 @@ import org.apache.ibatis.annotations.Param;
 
 import bus.dto.BusStop;
 import bus.dto.Operate;
-import bus.dto.Route;
+import bus.dto.Sequence;
 
 public interface OperateMapper {
 	void insertOperate(@Param("allocateid") int allocateid,@Param("today") String today);
 	List<BusStop> selectBusStop();
 	BusStop selectStart();
 	List<Operate> selectStatistics();
-	List<Route> selectRoute();
+	List<Sequence> selectSequence();
 	void updateOperate(Operate operate);
 	Operate selectNewOperate(int allocateid);
 	Operate selectBefore(int operateid);
