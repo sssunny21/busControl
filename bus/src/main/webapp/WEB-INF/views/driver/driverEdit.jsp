@@ -3,9 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <style>
-label {
-	margin-top: 10px;
-}
+label { margin-top: 10px; }
 </style>
 <script>
 var error = "${errorMsg}";
@@ -28,10 +26,10 @@ $(function(){
 	<br>
 	<label>상태 </label>
 	<form:select path="state" class="form-control">
-		<form:option value="근무" label="근무" />
-		<form:option value="휴가" label="휴가" />
-		<form:option value="외근" label="외근" />
-		<form:option value="퇴사" label="퇴사" />
+		<form:option value = "근무" label = "근무" />
+		<form:option value = "휴가" label = "휴가" />
+		<form:option value = "외근" label = "외근" />
+		<form:option value = "퇴사" label = "퇴사" />
 	</form:select>
 	<div style="margin-top: 10px;" align = "center">
 		<input type="submit" class="btn btn-primary" value="저장" />

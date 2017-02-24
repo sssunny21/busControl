@@ -76,7 +76,7 @@ public class OperateStatisticsToExcelFile {
 			cell4 = row.createCell(4);
 			cell4.setCellValue(operate.getAverage());
 			cell5 = row.createCell(5);
-			cell5.setCellValue(operate.getMoney());
+			cell5.setCellValue(operate.getMoney()+"원");
 		}while(iterator.hasNext());    
 		
 		fileOut = response.getOutputStream();

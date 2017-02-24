@@ -14,19 +14,25 @@
 	</select>
 	
 	<select id="searchByBusNum" resultType="bus.dto.Bus">
-		SELECT b.*, a.allo_date FROM 
+		SELECT b.*, a.allo_date, a.cancel_check FROM 
 		(SELECT al.* FROM (SELECT busid,MAX(allocateid) allocateid FROM allocate GROUP BY busid) bid 
 		JOIN allocate al 
 		ON al.allocateid=bid.allocateid) a 
 		RIGHT JOIN bus b
 		ON b.busid = a.busid
 		where b.bus_num LIKE '%' || #{bus_num} || '%' AND b.exist = TRUE
-		ORDER BY a.allo_date DESC
+		ORDER BY b.bus_num
 	</select>
 	
 	<select id="selectByState" resultType="bus.dto.Bus">
-		SELECT * FROM bus WHERE
-		state = #{state} AND exist = TRUE;
+		SELECT b.*, a.allocateid, a.allo_date, a.cancel_check FROM 
+		(SELECT al.* FROM (SELECT busid,MAX(allocateid) allocateid FROM allocate GROUP BY busid) bid 
+		JOIN allocate al 
+		ON al.allocateid=bid.allocateid) a 
+		RIGHT JOIN bus b
+		ON b.busid = a.busid
+		WHERE b.exist = TRUE AND b.state = #{state}
+		ORDER BY b.bus_num
 	</select>
 	
 	<insert id="insertBus" useGeneratedKeys="true" keyProperty="busid">

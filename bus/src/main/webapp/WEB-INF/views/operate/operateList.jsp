@@ -7,6 +7,7 @@
 .start { display: none; }
 </style>
 <script>
+//한 항목만 선택 가능
 function check_only(chk){
     var obj = document.getElementsByName("allocateid");
     for(var i=0; i<obj.length; i++){
@@ -15,6 +16,7 @@ function check_only(chk){
         }
     }
 }
+//선택 안했을 경우
 $(function(){
 	$('#drive').click(function() {
 	    var ischecked = $("input:checkbox[name=allocateid]").is(":checked");

@@ -11,12 +11,7 @@
 		SELECT * FROM allocate
 		WHERE busid = #{busid}
 	</select>
-	
-	<select id = "selectByDriverid" resultType = "bus.dto.Allocate">
-		SELECT * FROM allocate
-		WHERE driverid = #{driverid}
-	</select>
-	
+
 	<select id = "selectFinishAllocate" resultType = "bus.dto.Allocate">
 		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, b.busid, a.cancel_check, a.cancel_reason
 		FROM allocate a
@@ -47,6 +42,7 @@
 		JOIN driver d
 		ON a.driverid = d.driverid
 		WHERE a.allo_date = to_date(#{allo_date},'YYYY-MM-DD')
+		ORDER BY a.allocateid DESC
 	</select>
 	
 	<select id = "searchName" resultType = "bus.dto.Allocate">
@@ -57,6 +53,7 @@
 		JOIN driver d
 		ON a.driverid = d.driverid
 		WHERE d.name LIKE '%' || #{name} || '%'
+		ORDER BY a.allocateid DESC
 	</select>
 	
 	<select id = "searchBus_num" resultType = "bus.dto.Allocate">
@@ -67,6 +64,7 @@
 		JOIN driver d
 		ON a.driverid = d.driverid
 		WHERE b.bus_num LIKE '%' || #{bus_num} || '%'  
+		ORDER BY a.allocateid DESC
 	</select>
 	
 	<select id = "selectNewAllocate" resultType = "bus.dto.Allocate">
@@ -110,9 +108,4 @@
 		UPDATE allocate SET cancel_check = true, cancel_reason = '기사 없음'
 		WHERE driverid = #{driverid}
 	</update>
-	
-	<delete id = "deleteAllocate">
-		DELETE FROM allocate
-		WHERE driverid = #{driverid}
-	</delete>
 </mapper>

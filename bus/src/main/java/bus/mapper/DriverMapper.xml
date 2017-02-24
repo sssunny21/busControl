@@ -8,11 +8,15 @@
 	</select>
 	
 	<select id = "selectByState" resultType = "bus.dto.Driver">
-		SELECT * FROM driver WHERE state = #{state} AND exist = true;
+		SELECT * FROM driver 
+		WHERE state = #{state} AND exist = true
+		ORDER BY name;
 	</select>
 	
 	<select id = "searchByName" resultType = "bus.dto.Driver">
-		SELECT * FROM driver WHERE name LIKE '%' || #{name} || '%' AND exist = true;
+		SELECT * FROM driver 
+		WHERE name LIKE '%' || #{name} || '%' AND exist = true
+		ORDER BY name;
 	</select>
 	
 	<select id = "selectByWorking" resultType = "bus.dto.Driver">

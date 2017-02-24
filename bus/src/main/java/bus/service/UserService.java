@@ -8,13 +8,17 @@ import bus.dto.User;
 
 @Service
 public class UserService {
-	 public String printAuth(User user) throws Exception {
+	
+	//세션 정보 print
+	public String printAuth(User user) throws Exception {
 		   String id = user.getId();
 		   String print=null;
 		   {print=id+" 관리자님 안녕하세요.";}
  
 		   return print;
-	   }
+	}
+	
+	//현재 사용자 정보
 	public static User getCurrentUser() { 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); 
 		if (authentication instanceof MyAuthenticationProvider.MyAuthenticaion) 

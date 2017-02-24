@@ -7,21 +7,13 @@
 .layer { display: none; }
 </style>
 <script>
-$(function() {
-    $("tr[data-url]").click(function() {
-        location.href = $(this).attr("data-url");
-    });
-    $("[data-auto-submit=true]").change(function() {
-        $(this).parents("form").submit();
-    });
-    $("[data-confirm]").click(function() {
-        return confirm($(this).attr("data-confirm"));
-    })
-});
+//숫자만 입력 가능하도록
 $(function(){
 	$(document).on("keyup", "input:text[datetimeOnly]", function() {$(this).val( $(this).val().replace(/[^0-9:\-]/gi,"") );});
 });
 var allo_date = "allo_date";
+
+//select option값에 의해 입력창 변경
 function change_on(){
 	var state = jQuery('#selection option:selected').val();
 	if(state == 'allo_date') {
@@ -32,37 +24,39 @@ function change_on(){
 		jQuery('.layer2').show();
 	}
 }
-function removeComma(str){
-	n=str.replace(/,/g,"");
-	return n;
-}
 </script>
 <h4>배차 현황</h4>
 <jsp:useBean id="now" class="java.util.Date" />
-
 <form:form method="post" modelAttribute="allocate">
 	<div class="row" style="margin-top: 20px;">
 		<div class="col-lg-12" style="padding-left: 30px;">
 			<div class="form-inline">
-			 <div class="form-group">
-				<select id="selection" name="selection" class="form-control" onchange="change_on()">
-					<option value="bus_num" ${ selection eq "bus_num" ? "selected" : ""}>차량번호</option>
-					<option value="allo_date" ${ selection eq "allo_date" ? "selected" : ""}>일자</option>
-					<option value="name" ${ selection eq "name" ? "selected" : ""}>기사이름</option>
-				</select>
-			</div>
-			 <div class="form-group">
-				<div class="layer2" align = "right">
-					<input name="search2" id="search2" class="form-control" value="${search2 }"/>
-					<button type="submit" class="btn btn-info" name="cmd" value="allocateSearch2">검색</button>
+				<div class="form-group">
+					<select id="selection" name="selection" class="form-control"
+						onchange="change_on()">
+						<option value="bus_num"
+							${ selection eq "bus_num" ? "selected" : ""}>차량번호</option>
+						<option value="allo_date"
+							${ selection eq "allo_date" ? "selected" : ""}>일자</option>
+						<option value="name" ${ selection eq "name" ? "selected" : ""}>기사이름</option>
+					</select>
 				</div>
-				<div class="layer"  align = "right">
-					<input name = "search" id = "search" class="form-control datepicker" datetimeOnly="true"  value="${search }"/>
-					<button type="submit" class="btn btn-info" name="cmd" value="allocateSearch">검색</button>
+				<div class="form-group">
+					<div class="layer2" align="right">
+						<input name="search2" id="search2" class="form-control"
+							value="${search2 }" />
+						<button type="submit" class="btn btn-info" name="cmd"
+							value="allocateSearch2">검색</button>
+					</div>
+					<div class="layer" align="right">
+						<input name="search" id="search" class="form-control datepicker"
+							datetimeOnly="true" value="${search }" />
+						<button type="submit" class="btn btn-info" name="cmd"
+							value="allocateSearch">검색</button>
+					</div>
 				</div>
 			</div>
-			</div>
-	</div>
+		</div>
 	</div>
 	<div class="panel-body">
 		<table class="table table-bordered" id="table_s">

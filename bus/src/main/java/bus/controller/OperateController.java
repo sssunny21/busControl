@@ -14,15 +14,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import bus.dto.Allocate;
-import bus.dto.Bus;
 import bus.dto.BusStop;
 import bus.dto.Operate;
-import bus.dto.Route;
 import bus.dto.Sequence;
 import bus.dto.User;
 import bus.mapper.AllocateMapper;
 import bus.mapper.OperateMapper;
-import bus.service.BusListToExcelFile;
 import bus.service.OperateStatisticsToExcelFile;
 import bus.service.UserService;
 
@@ -32,6 +29,7 @@ public class OperateController {
 	@Autowired OperateMapper operateMapper;
 	@Autowired UserService userService;
 	
+	//운행할 배차완료 버스 리스트, 지도 정보
 	@RequestMapping(value="/operate/operateList.gnt")
     public String operateList(Model model) throws Exception {
 		Date d = new Date();
@@ -52,6 +50,7 @@ public class OperateController {
 		return "operate/operateList";
     }
 
+	//운행 후 정보 저장
 	@RequestMapping(value="/operate/operateList.gnt", method=RequestMethod.POST)
     public String operateList(@RequestParam(value="operateid") int operateid, @RequestParam(value="oper_count") int oper_count, 
     		@RequestParam(value="accu_passenger") int accu_passenger, Model model) {
@@ -65,6 +64,7 @@ public class OperateController {
 		return "operate/operateList";
     }
 	
+	//운행 현황 통계표
 	@RequestMapping(value="/operate/operateStatistics.gnt")
     public String operateStatistics(Model model) throws Exception {
 		List<Operate> operateList = operateMapper.selectStatistics();
@@ -80,9 +80,13 @@ public class OperateController {
 		return "operate/operateStatistics";
     }
 	
+	//엑셀 다운로드(운행 현황)
 	@RequestMapping(value="/operate/operateStatistics.gnt", method=RequestMethod.POST, params="cmd=excel")
-	public String operateStatistics(Operate operate, Model model, HttpServletRequest request,HttpServletResponse response) throws Exception {
+	public String operateStatistics(Model model, HttpServletRequest request,HttpServletResponse response) throws Exception {
 		List<Operate> operateList = operateMapper.selectStatistics();
+		for(Operate o : operateList){
+			o.setMoney(o.getAccu_passenger()*1250);
+		}
 		OperateStatisticsToExcelFile.operateStatisticsToFile("operateStatistics.xlsx", operateList, request, response);
         model.addAttribute("operateList", operateList);
 		return "bus/busList";

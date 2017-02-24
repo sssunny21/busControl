@@ -1,7 +1,5 @@
 package bus.controller;
 
-import java.io.BufferedOutputStream;
-import java.nio.file.Files;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +33,8 @@ public class BusController {
 	@Autowired AllocateMapper allocateMapper;
 	@Autowired OperateMapper operateMapper;
 	@Autowired UserService userService;
-
+	
+	//버스 리스트
 	@RequestMapping(value="/bus/busList.gnt", method=RequestMethod.GET)
     public String busList(Model model) throws Exception {
 		List<Bus> busList = busMapper.selectBusList();
@@ -48,6 +47,7 @@ public class BusController {
         return "bus/busList";
     }
 	
+	//상태 검색
 	@RequestMapping(value="/bus/busList.gnt", method=RequestMethod.POST, params="cmd=selectByState")
 	public String busList2(@RequestParam("state") String state, Model model) throws Exception {
 		List<Bus> busList = busMapper.selectByState(state);
@@ -61,6 +61,7 @@ public class BusController {
 		return "bus/busList";
 	}
 	
+	//차량 번호 검색
 	@RequestMapping(value="/bus/busList.gnt", method=RequestMethod.POST, params="cmd=busSearch")
 	public String busList3(@RequestParam("bus_num") String bus_num, Model model) throws Exception {
 		List<Bus> busList = busMapper.searchByBusNum(bus_num);
@@ -74,6 +75,7 @@ public class BusController {
 		return "bus/busList";
 	}
 	
+	//엑셀 다운로드(버스)
 	@RequestMapping(value="/bus/busList.gnt", method=RequestMethod.POST, params="cmd=excel")
 	public String busList4(Bus bus, Model model, HttpServletRequest request,HttpServletResponse response) throws Exception {
 		List<Bus> busList = busMapper.selectBusList();
@@ -82,6 +84,7 @@ public class BusController {
 		return "bus/busList";
 	}
 
+	//차량 생성
 	@RequestMapping(value="/bus/busCreate.gnt", method=RequestMethod.GET)
     public String create(Model model) throws Exception {
 		if(UserService.getCurrentUser()!=null){
@@ -112,6 +115,7 @@ public class BusController {
 		return "bus/busCreate";
 	}
 	
+	//차량 정보 수정
 	@RequestMapping(value="/bus/busEdit.gnt", method=RequestMethod.GET)
     public String edit(@RequestParam("busid") Integer busid, Model model) throws Exception {
     	Bus bus = busMapper.selectByBusId(busid);
@@ -140,6 +144,7 @@ public class BusController {
 		}
 	}
 	
+	//차량 삭제
 	@RequestMapping("/bus/busDelete.gnt")
     public String delete(Model model, @RequestParam("busid") int busid,RedirectAttributes redirectAttributes) throws Exception {
 		busMapper.deleteBus(busid);
@@ -148,6 +153,7 @@ public class BusController {
         return "redirect:/bus/busList.gnt";
     }
 	
+	//배차 완료 목록 리스트
 	@RequestMapping(value="/bus/allocateList.gnt", method=RequestMethod.GET)
     public String allocateList(Model model) throws Exception {
 		List<Allocate> allocateList = allocateMapper.selectFinishAllocate();
@@ -160,6 +166,7 @@ public class BusController {
         return "bus/allocateList";
     }
 	
+	//배차 일자 검색
 	@RequestMapping(value="/bus/allocateList.gnt", method=RequestMethod.POST, params="cmd=allocateSearch")
     public String allocateList(@RequestParam("selection") String selection, @RequestParam("search") String search, Model model) throws Exception {
 		List<Allocate> allocateList;
@@ -176,6 +183,7 @@ public class BusController {
         return "bus/allocateList";
     }
 	
+	//배차 차량번호, 기사이름 검색
 	@RequestMapping(value="/bus/allocateList.gnt", method=RequestMethod.POST, params="cmd=allocateSearch2")
     public String allocateList2(@RequestParam("selection") String selection, @RequestParam("search2") String search2, Model model) throws Exception {
 		List<Allocate> allocateList;
@@ -195,6 +203,7 @@ public class BusController {
         return "bus/allocateList";
     }
 	
+	//배차 완료 목록 엑셀 다운로드
 	@RequestMapping(value="/bus/allocateList.gnt", method=RequestMethod.POST, params="cmd=excel")
     public String allocateList2(Allocate allocate, Model model, HttpServletRequest request,HttpServletResponse response) throws Exception {
 		List<Allocate> allocateList = allocateMapper.selectFinishAllocate();

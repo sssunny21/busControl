@@ -9,9 +9,10 @@
 <body>
     <tiles:insertAttribute name="menu" />
     <div class="container">
-        <div style="min-height: 700px">
+        <div style="min-height: 750px;">
             <tiles:insertAttribute name="content" />       
         </div>
     </div>
+    <tiles:insertAttribute name="footer" />
 </body>
 </html>
