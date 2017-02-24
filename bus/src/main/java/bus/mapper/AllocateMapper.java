@@ -17,7 +17,6 @@ public interface AllocateMapper {
 	List<Allocate> selectByDriverid(int driverid);
 	Allocate selectNewAllocate();
 	void insertAllocate(@Param("busid") Integer busid,@Param("driverid") Integer driverid,@Param("today") String today);
-	void updateCheck(int allocateid);
 	void updateAllocate(@Param("busid") Integer busid,@Param("driverid") Integer driverid,@Param("today") String today,@Param("allocateid") Integer allocateid);
 	void cancelAllocate(int allocateid);
 	void cancelByDriver(int driverid);

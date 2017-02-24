@@ -18,7 +18,7 @@
 	</select>
 	
 	<select id = "selectFinishAllocate" resultType = "bus.dto.Allocate">
-		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, a.operate_check, b.busid, a.cancel_check, a.cancel_reason
+		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, b.busid, a.cancel_check, a.cancel_reason
 		FROM allocate a
 		JOIN bus b
 		ON a.busid = b.busid
@@ -28,7 +28,7 @@
 	</select>
 	
 	<select id = "monitoring" resultType = "bus.dto.Allocate">
-		SELECT a.allocateid, a.allo_date, b.busid, b.bus_num, b.state, b.limit_passenger, d.name, a.operate_check, a.cancel_check, o.operateid
+		SELECT a.allocateid, a.allo_date, b.busid, b.bus_num, b.state, b.limit_passenger, d.name, a.cancel_check, o.operateid
 		FROM allocate a
 		JOIN bus b
 		ON a.busid = b.busid
@@ -40,7 +40,7 @@
 	</select>
 	
 	<select id = "selectAllo_date" resultType = "bus.dto.Allocate">
-		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, a.operate_check 
+		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name
 		FROM allocate a
 		JOIN bus b
 		ON a.busid = b.busid
@@ -50,7 +50,7 @@
 	</select>
 	
 	<select id = "searchName" resultType = "bus.dto.Allocate">
-		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, a.operate_check 
+		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name
 		FROM allocate a
 		JOIN bus b
 		ON a.busid = b.busid
@@ -60,7 +60,7 @@
 	</select>
 	
 	<select id = "searchBus_num" resultType = "bus.dto.Allocate">
-		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name, a.operate_check 
+		SELECT a.allocateid, a.allo_date, b.bus_num, b.state, d.name
 		FROM allocate a
 		JOIN bus b
 		ON a.busid = b.busid
@@ -76,19 +76,13 @@
 	
 	<insert id = "insertAllocate">
 		INSERT
-		INTO allocate (busid, driverid, operate_check, allo_date, cancel_check)
+		INTO allocate (busid, driverid, allo_date, cancel_check)
 		VALUES
-		(#{busid}, #{driverid}, FALSE, to_date(#{today},'YYYY-MM-DD'), FALSE)
+		(#{busid}, #{driverid}, to_date(#{today},'YYYY-MM-DD'), FALSE)
 	</insert>
-	
-	<update id = "updateCheck">
-		UPDATE allocate SET operate_check = TRUE
-		WHERE allocateid = #{allocateid}
-	</update>
-	
+
 	<update id = "updateAllocate">
-		UPDATE allocate SET busid = #{busid}, driverid = #{driverid}, operate_check = FALSE, 
-		allo_date = to_date(#{today},'YYYY-MM-DD'), cancel_check = FALSE, cancel_reason = '재배정'
+		UPDATE allocate SET busid = #{busid}, driverid = #{driverid}, allo_date = to_date(#{today},'YYYY-MM-DD'), cancel_check = FALSE, cancel_reason = '재배정'
 		WHERE allocateid = #{allocateid}
 	</update>
 	

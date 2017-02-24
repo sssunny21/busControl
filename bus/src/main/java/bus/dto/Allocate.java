@@ -4,7 +4,6 @@ public class Allocate {
 	int allocateid;
 	int busid;
 	int driverid;
-	boolean operate_check;
 	String allo_date;
 	String bus_num;
 	String state;
@@ -43,12 +42,6 @@ public class Allocate {
 	}
 	public void setDriverid(int driverid) {
 		this.driverid = driverid;
-	}
-	public boolean isOperate_check() {
-		return operate_check;
-	}
-	public void setOperate_check(boolean operate_check) {
-		this.operate_check = operate_check;
 	}
 	public String getAllo_date() {
 		return allo_date;
