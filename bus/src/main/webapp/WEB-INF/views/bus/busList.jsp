@@ -27,9 +27,19 @@
 			return confirm($(this).attr("data-confirm"));
 		})
 	});
+	function select(){
+		if(confirm("배차현황으로 가시겠습니까?") == true){
+			location.href = "allocateList.gnt";
+		}else{
+			return;
+		}
+	}
 	var error = "${errorMsg}";
 	if (error)
 		alert(error);
+	var msg = "${selectMsg}";
+	if (msg != "")
+		select();
 	
 </script>
 <h4>차량정보 목록</h4>
@@ -39,7 +49,7 @@
 		<div class="col-lg-9" style="padding-left: 30px;">
 			<div class="form-inline">
 				<input name="bus_num" id="bus_num" class="form-control"
-					value="${ bus_num ne null ? bus_num : " "}" />
+					value="${ bus_num ne null ? bus_num : "" }" />
 				<button type="submit" class="btn btn-info" name="cmd"
 					value="busSearch">번호 검색</button>
 			</div>

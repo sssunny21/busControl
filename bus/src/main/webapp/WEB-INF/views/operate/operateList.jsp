@@ -60,7 +60,7 @@ $(function(){
 						<td>${allocateList.bus_num }</td>
 						<td>${allocateList.state}</td>
 						<td>${allocateList.name }</td>
-						<td class = "start">시작</td>
+						<td class = "start" id="${allocateList.operateid }">시작</td>
 						<td class = "end">대기</td>
 					</tr>
 				</c:if>
@@ -72,24 +72,24 @@ $(function(){
 	<button id="drive" type="button" class="btn btn-info">운행 시작</button>
 	</center>
 </form:form>
-<!--<c:if test="${operate.operateid eq 0 }">
-<button id="drive" class="btn btn-default">출발</button>
-</c:if> -->
 
 <div id="map" class="map" style="margin-top: 15px;">
  <div id="popup" class="ol-popup">
    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
    <div id="popup-content"></div>
 </div>
-<div id = "busOverlay">
+<div id = "busOverlay" style="width: 108px;">
+	<center>
 	<div id = "bus-content"></div>
+	</center>
 </div>
 </div>
+
 <script>
 	var content = document.getElementById('popup-content');
 	var busContent = document.getElementById('bus-content');
 	var closer = document.getElementById('popup-closer');
-	
+	var selectNum = 0;
 	/***지도 변수***/
 	var start = new Array();
 	var busStopList = new Array();
@@ -262,7 +262,7 @@ $(function(){
 	});
 	var view = new ol.View({
 		projection : projection,
-		center : [126.99397, 37.42984]
+		center : [126.99672, 37.43083]
 	});
 	var map = new ol.Map({
 		controls : ol.control.defaults({
@@ -320,7 +320,7 @@ $(function(){
 				if(busLocation > 0){
 					content.innerHTML = feature.get('name') +' <br>'+feature.get('bus_num') + ' : '+busLocation+'정류장 전';
 				}else if(busLocation == 0){
-					content.innerHTML = feature.get('name') +' <br>'+feature.get('bus_num') + ' : 탑승 중';
+					content.innerHTML = feature.get('name') +' <br>'+feature.get('bus_num') + ' : 탑승 완료';
 				}else{
 					content.innerHTML = feature.get('name') +' <br>'+feature.get('bus_num') + ' : 지나간 차량';
 				}
@@ -346,24 +346,9 @@ $(function(){
 				done(complete);
 			}
 		}
-		//console.log(location);
 		bus.setGeometry(location);
 		bus.set('num',index);
 		busOverlay.setPosition(bus.getGeometry().getCoordinates());
-		/* map.on(move);
-		var move = function(event){
-			var frameState = event.frameState;
-			console.log("f"+frameState);
-			var elapsedTime = frameState.time - now;
-			console.log("e"+elapsedTime);
-			var i = Math.round(40 * elapsedTime / 1000);
-			if(i >= route[index-1].length){
-				bus.setGeometry(location.getGeometry());
-				return;
-			}
-			bus.setGeometry(route[i]);
-			map.render();
-		} */
 		callback(true);
 	}
 
@@ -380,13 +365,21 @@ $(function(){
 					var delay = index === 0 ? 0 : 1000; //1초
 					setTimeout(function() {
 						var current = new ol.geom.Point([ routeXY[index], routeXY[index+1] ]);
-						console.log("lo"+locations[0].getGeometry().getCoordinates()+" current:"+current.getCoordinates());
 						for(var i = 0; i < locations.length; i++){
 							if(current.getCoordinates().toString() == locations[i].getGeometry().getCoordinates().toString()){
-								console.log("정류장도착"+locations[i].getGeometry()+" current:"+current);
-								bus.set('cur_passenger', bus.get('cur_passenger')+ locations[i].get('passenger'));
-								busContent.innerHTML = locations[i].get('passenger')+ '명 탑승';
-								location_index = i;
+								console.log("현재"+bus.get('cur_passenger')+" 탈사람: "+locations[i].get('passenger')+" i"+i);
+								 if(bus.get('cur_passenger') + locations[i].get('passenger') >= limit_passenger[selectNum]){
+									busContent.innerHTML = limit_passenger[selectNum] - bus.get('cur_passenger')+'명 탑승 <br>*탑승인원 제한*';
+									bus.set('cur_passenger', bus.get('cur_passenger') + (limit_passenger[selectNum] - bus.get('cur_passenger')));
+									location_index = i; 
+									for(var i = 0; i < locations.length; i++){
+										locations[i].set('passenger',0);
+									}
+								 }else{
+									bus.set('cur_passenger', bus.get('cur_passenger')+ locations[i].get('passenger'));
+									busContent.innerHTML = locations[i].get('passenger')+ '명 탑승';
+									location_index = i;
+								 }
 							}
 						}
 						index++;
@@ -398,7 +391,7 @@ $(function(){
 					bus.set('oper_count', 1);
 					bus.set('accu_passenger', bus.get('cur_passenger'));
 					bus.set('cur_passenger', 0);
-					console.log("count"+bus.get('oper_count')+"accu"+bus.get('accu_passenger'));
+					console.log("count : "+bus.get('oper_count')+"accu : "+bus.get('accu_passenger'));
 					var afterOperate = {
 						"operateid" : operateid,
 						"oper_count" : bus.get('oper_count'),
@@ -427,14 +420,16 @@ $(function(){
 		next(true);
 	}
 	$('#drive').click(function(){
-		jQuery('.start').show();
-		jQuery('.end').hide();
 		var obj = $("input:checkbox[name=allocateid]");
 		for(var i = 0; i < obj.length; i++){
 		    if(obj[i].checked == true){
-		    	operateid = obj[i].value;
+		    operateid = obj[i].value;
+		    $(obj[i]).parents('td').siblings(".start").css('display','block');
+		    $(obj[i]).parents('td').siblings(".end").css('display','none');
+		    //parents로 td의 상위요소를 찾는다. 상위요소중에서 stard, end 라는 클래스 이름을 가진 하위요소를 찾아서 css값을 변경.
+		    selectNum = i;
 		    }
-	    }
+		  }
 		drive(bus, operateid);
 	})
 </script>

@@ -200,27 +200,22 @@ public class DriverController {
 	@RequestMapping(value="/driver/cancel.gnt", method=RequestMethod.GET)
     public String cancel(@RequestParam("id") Integer allocateid, Model model) throws Exception {
     	allocateMapper.cancelAllocate(allocateid);
-    	List<Bus> busList = busMapper.selectBusList();
-		if(UserService.getCurrentUser()!=null){
-			User u = (User)UserService.getCurrentUser();
-			String id = userService.printAuth(u);
-			model.addAttribute("id",id);
-		}
-		model.addAttribute("busList", busList);
-        return "bus/busList";
+		return "redirect:/bus/busList.gnt";
     }
 	
 	@RequestMapping(value="/driver/selectionDriver.gnt")
-	public String selectionDriver(@RequestParam("b_id") int busid, @RequestParam("d_id") int driverid,@RequestParam("c") String today, Model model){
+	public String selectionDriver(@RequestParam("b_id") int busid, @RequestParam("d_id") int driverid,@RequestParam("c") String today, Model model, RedirectAttributes redirectAttributes){
 		allocateMapper.insertAllocate(busid, driverid, today);
 		Allocate allocate = allocateMapper.selectNewAllocate();
 		operateMapper.insertOperate(allocate.getAllocateid(),today);
+		redirectAttributes.addFlashAttribute("selectMsg", "배차 완료!");
 		return "redirect:/bus/busList.gnt";
 	}
 	
 	@RequestMapping(value="/driver/selectionDriver2.gnt")
-	public String selectionDriver2(@RequestParam("id") int allocateid, @RequestParam("b_id") int busid, @RequestParam("d_id") int driverid,@RequestParam("c") String today, Model model){
+	public String selectionDriver2(@RequestParam("id") int allocateid, @RequestParam("b_id") int busid, @RequestParam("d_id") int driverid,@RequestParam("c") String today, Model model, RedirectAttributes redirectAttributes){
 		allocateMapper.updateAllocate(busid, driverid, today, allocateid);
+		redirectAttributes.addFlashAttribute("selectMsg", "배차 완료!");
 		return "redirect:/bus/busList.gnt";
 	}
 	

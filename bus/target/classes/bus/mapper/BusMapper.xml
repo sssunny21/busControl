@@ -44,7 +44,7 @@
 		RIGHT JOIN bus b
 		ON b.busid = a.busid
 		WHERE b.exist = TRUE
-		ORDER BY a.allocateid DESC
+		ORDER BY b.bus_num
 	</select>
 	
 	<update id="updateBus">

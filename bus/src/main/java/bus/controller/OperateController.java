@@ -3,6 +3,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import bus.dto.Allocate;
+import bus.dto.Bus;
 import bus.dto.BusStop;
 import bus.dto.Operate;
 import bus.dto.Route;
@@ -18,6 +22,8 @@ import bus.dto.Sequence;
 import bus.dto.User;
 import bus.mapper.AllocateMapper;
 import bus.mapper.OperateMapper;
+import bus.service.BusListToExcelFile;
+import bus.service.OperateStatisticsToExcelFile;
 import bus.service.UserService;
 
 @Controller
@@ -54,6 +60,7 @@ public class OperateController {
 		operate.setOperateid(operateid);
 		operate.setOper_count(before.getOper_count() + oper_count);
 		operate.setAccu_passenger(before.getAccu_passenger() + accu_passenger);
+		System.out.println("카운트:"+before.getOper_count()+","+"누적"+before.getAccu_passenger());
 		operateMapper.updateOperate(operate);
 		return "operate/operateList";
     }
@@ -66,8 +73,19 @@ public class OperateController {
 			String id = userService.printAuth(u);
 			model.addAttribute("id",id);
 		}
+		for(Operate o : operateList){
+			o.setMoney(o.getAccu_passenger()*1250);
+		}
 		model.addAttribute("operateList", operateList);
 		return "operate/operateStatistics";
     }
+	
+	@RequestMapping(value="/operate/operateStatistics.gnt", method=RequestMethod.POST, params="cmd=excel")
+	public String operateStatistics(Operate operate, Model model, HttpServletRequest request,HttpServletResponse response) throws Exception {
+		List<Operate> operateList = operateMapper.selectStatistics();
+		OperateStatisticsToExcelFile.operateStatisticsToFile("operateStatistics.xlsx", operateList, request, response);
+        model.addAttribute("operateList", operateList);
+		return "bus/busList";
+	}
 
 }

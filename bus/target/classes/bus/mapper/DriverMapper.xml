@@ -23,6 +23,7 @@
 		RIGHT JOIN driver d
 		ON a.driverid = d.driverid
 		WHERE d.state = '근무' AND d.exist = TRUE
+		ORDER BY d.name
 	</select>
 
 	<insert id = "insertDriver" useGeneratedKeys = "true" keyProperty = "driverid">
@@ -35,7 +36,7 @@
 	<select id = "selectDriverList" resultType = "bus.dto.Driver">
 		SELECT * FROM driver 
 		WHERE exist = TRUE
-		ORDER BY driverid
+		ORDER BY name
 	</select>
 	
 	<update id = "updateDriver">

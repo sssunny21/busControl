@@ -8,7 +8,14 @@ public class Operate {
 	int accu_passenger;
 	int average;
 	String bus_num;
+	int money;
 	
+	public int getMoney() {
+		return money;
+	}
+	public void setMoney(int money) {
+		this.money = money;
+	}
 	public int getOperateid() {
 		return operateid;
 	}

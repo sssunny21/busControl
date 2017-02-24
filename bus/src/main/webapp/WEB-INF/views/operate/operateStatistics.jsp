@@ -17,6 +17,7 @@
 					<th>노선운행횟수</th>
 					<th>총 탑승인원</th>
 					<th>1회 노선운행 평균 탑승인원</th>
+					<th>누적 요금(1인 1250원)</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -27,9 +28,13 @@
 						<td>${operateList.oper_count }</td>
 						<td>${operateList.accu_passenger }</td>
 						<td>${operateList.average}</td>
+						<td><fmt:formatNumber value="${operateList.money }"/>원</td>
 					</tr>
 				</c:forEach>
 			</tbody>
 		</table>
+	</div>
+	<div align = right style="padding-right: 15px;">
+		<button type="submit" class="btn btn-success" name="cmd" value="excel">엑셀 다운로드</button>
 	</div>
 </form:form>
